@@ -8,6 +8,9 @@ import { api } from "~/utils/api";
 const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
+  if (hello.data) {
+    console.log(hello.data.spells);
+  }
   return (
     <>
       <Head>
@@ -63,7 +66,7 @@ const AuthShowcase: React.FC = () => {
 
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
     undefined, // no input
-    { enabled: sessionData?.user !== undefined },
+    { enabled: sessionData?.user !== undefined }
   );
 
   return (
