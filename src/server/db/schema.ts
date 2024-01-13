@@ -18,7 +18,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const mysqlTable = mysqlTableCreator(
-  (name) => `roll-iniatative_${name}`,
+  (name) => `roll-initiative_${name}`,
 );
 
 export const posts = mysqlTable(
