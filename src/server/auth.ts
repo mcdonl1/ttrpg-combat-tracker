@@ -1,6 +1,4 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { type Adapter } from "next-auth/adapters";
-import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type DefaultSession,
@@ -48,7 +46,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
-  adapter: DrizzleAdapter(db, mysqlTable) as Adapter,
+  adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
@@ -71,9 +69,4 @@ export const authOptions: NextAuthOptions = {
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+export const getServerAuthSession = () => getServerSession(authOptions);
