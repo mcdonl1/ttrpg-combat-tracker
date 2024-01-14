@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -7,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Creature, EncounterList } from "~/types/encounterTypes";
+import { CreatureContextMenu } from "./CreatureContextMenu";
 
 export function EncounterTable({
   creaturesList,
@@ -27,18 +30,23 @@ export function EncounterTable({
       <TableBody>
         {creaturesList
           .sort((a, b) => a.initiative - b.initiative)
-          .map((creature) => (
-            <TableRow key={creature.id}>
-              <TableCell className="font-medium">
-                {creature.initiative}
-              </TableCell>
-              <TableCell className="font-medium">{creature.name}</TableCell>
-              <TableCell>
-                {creature.hp}/{creature.hpMax}
-              </TableCell>
-              <TableCell>{creature.ac}</TableCell>
-              <TableCell>{creature.tags.join(", ")}</TableCell>
-            </TableRow>
+          .map((creature, index) => (
+            <CreatureContextMenu
+              key={creature.id + index.toString()}
+              creatureId={index}
+            >
+              <TableRow>
+                <TableCell className="font-medium">
+                  {creature.initiative}
+                </TableCell>
+                <TableCell className="font-medium">{creature.name}</TableCell>
+                <TableCell>
+                  {creature.hp}/{creature.hpMax}
+                </TableCell>
+                <TableCell>{creature.ac}</TableCell>
+                <TableCell>{creature.tags.join(", ")}</TableCell>
+              </TableRow>
+            </CreatureContextMenu>
           ))}
       </TableBody>
     </Table>
