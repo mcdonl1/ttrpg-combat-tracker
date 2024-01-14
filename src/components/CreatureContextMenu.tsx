@@ -19,28 +19,38 @@ import {
 export function CreatureContextMenu({
   children,
   creatureId,
+  handleApplyDamage,
+  handleModifyStatblock,
+  handleModifyInitiative,
+  handleAddTag,
+  handleTagChange,
 }: {
   children?: React.ReactNode;
   creatureId: number;
+  handleApplyDamage: (creatureId: number) => () => void;
+  handleModifyStatblock: (creatureId: number) => () => void;
+  handleModifyInitiative: (creatureId: number) => () => void;
+  handleAddTag: (creatureId: number) => () => void;
+  handleTagChange: (e: React.FormEvent, creatureId: number) => void;
 }) {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem inset>
+        <ContextMenuItem onClick={handleApplyDamage(creatureId)}>
           Apply Damage to {creatureId}
-          <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+          <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem inset disabled>
+        <ContextMenuItem onClick={handleModifyStatblock(creatureId)}>
           Modify Statblock
-          <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+          <ContextMenuShortcut>⌘M</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem inset>
+        <ContextMenuItem onClick={handleModifyInitiative(creatureId)}>
           Modify Initiative
-          <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+          <ContextMenuShortcut>⌘I</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSub>
-          <ContextMenuSubTrigger inset>More Tools</ContextMenuSubTrigger>
+          <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
             <ContextMenuItem>
               Do something
@@ -53,14 +63,19 @@ export function CreatureContextMenu({
           </ContextMenuSubContent>
         </ContextMenuSub>
         <ContextMenuSeparator />
-        <ContextMenuCheckboxItem checked>
+        <ContextMenuItem>
           Rename
-          <ContextMenuShortcut>⌘⇧B</ContextMenuShortcut>
-        </ContextMenuCheckboxItem>
-        <ContextMenuItem>Add Tag</ContextMenuItem>
+          <ContextMenuShortcut>⌘O</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={handleAddTag(creatureId)}>
+          Add Tag
+        </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuRadioGroup value="tags">
-          <ContextMenuLabel inset>Tags</ContextMenuLabel>
+        <ContextMenuRadioGroup
+          value="tags"
+          onChange={(e) => handleTagChange(e, creatureId)}
+        >
+          <ContextMenuLabel>Tags</ContextMenuLabel>
           <ContextMenuSeparator />
           <ContextMenuRadioItem value="frightened">
             Frightened

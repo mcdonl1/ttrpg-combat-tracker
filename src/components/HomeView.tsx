@@ -377,8 +377,12 @@ export function HomeView() {
     <ResizablePanelGroup className="h-full" direction="horizontal">
       <ResizablePanel defaultSize={20}>
         <div className="flex h-full flex-col border-r">
-          <h2 className="border-b px-6 py-4">Left Panel</h2>
-          <div className="flex-1 overflow-auto"></div>
+          <h4 className="border-b px-6 py-4">
+            <div className="space-y-2 px-6 py-4">Left Panel</div>
+          </h4>
+          <div className="flex-1 overflow-auto">
+            <div className="space-y-2 px-6 py-4">Some content</div>
+          </div>
         </div>
       </ResizablePanel>
       <ResizableHandle />
@@ -388,9 +392,9 @@ export function HomeView() {
       <ResizableHandle />
       <ResizablePanel defaultSize={20}>
         <div className="flex h-full flex-col border-l">
-          <h2 className="border-b px-6 py-4">Right Panel</h2>
+          <h4 className="border-b px-6 py-4">Right Panel</h4>
           <div className="flex-1 overflow-auto">
-            <div className="space-y-2 px-6 py-4"></div>
+            <div className="space-y-2 px-6 py-4">Some content</div>
           </div>
         </div>
       </ResizablePanel>
