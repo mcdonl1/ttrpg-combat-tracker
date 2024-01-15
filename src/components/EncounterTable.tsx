@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Creature, EncounterList } from "~/types/encounterTypes";
+import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 
@@ -33,7 +33,7 @@ export function EncounterTable({
     console.log("add tag to creature", creatureId);
   };
 
-  const handleTagChange = (e: any, creatureId: number) => {
+  const handleTagChange = (e: React.FormEvent, creatureId: number) => {
     console.log("tag change", e, creatureId);
   };
 
