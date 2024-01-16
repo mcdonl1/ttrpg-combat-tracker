@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Creature, EncounterList } from "~/types/encounterTypes";
+import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 
