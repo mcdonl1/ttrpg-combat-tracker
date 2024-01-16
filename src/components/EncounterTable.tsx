@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -41,7 +41,7 @@ export function EncounterTable({
     console.log("add tag to creature", creatureId);
   };
 
-  const handleTagChange = (e: any, creatureId: number) => {
+  const handleTagChange = (e: React.FormEvent, creatureId: number) => {
     console.log("tag change", e, creatureId);
   };
 
@@ -55,7 +55,7 @@ export function EncounterTable({
     arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
     return arr;
   };
-  const handleDrag = (e: any, index: number) => {
+  const handleDrag = (e: React.DragEvent, index: number) => {
     setTableList((prevList) => {
       const newList = [...prevList];
       newList[index]!.isDragging = true;
@@ -63,7 +63,7 @@ export function EncounterTable({
     });
   };
 
-  const handleDragOver = (e: any, index: number) => {
+  const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     setTableList((prevList) => {
       const newList = [...prevList];
@@ -72,7 +72,7 @@ export function EncounterTable({
     });
   };
 
-  const handleDragOff = (e: any, index: number) => {
+  const handleDragOff = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     setTableList((prevList) => {
       const newList = [...prevList];
@@ -81,7 +81,7 @@ export function EncounterTable({
     });
   };
 
-  const handleDrop = (e: any, index: number) => {
+  const handleDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     setTableList((prevList) => {
       const draggedCreatureIdx = prevList.findIndex(
