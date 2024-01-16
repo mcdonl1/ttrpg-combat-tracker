@@ -55,6 +55,7 @@ export function EncounterTable({
     arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
     return arr;
   };
+
   const handleDrag = (e: React.DragEvent, index: number) => {
     setTableList((prevList) => {
       const newList = [...prevList];
@@ -96,7 +97,11 @@ export function EncounterTable({
       draggedCreature!.initiative = prevList[onCreatureIdx]!.initiative;
       let newList = [...prevList];
       newList[index]!.isDraggedOver = false;
-      newList = array_move(newList, draggedCreatureIdx, onCreatureIdx);
+      newList = array_move(
+        newList,
+        draggedCreatureIdx,
+        onCreatureIdx,
+      ) as typeof tableList;
       return newList;
     });
   };
