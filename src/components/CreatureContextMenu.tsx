@@ -25,6 +25,7 @@ export function CreatureContextMenu({
   handleModifyInitiative,
   handleAddTag,
   handleTagChange,
+  className,
 }: {
   children?: React.ReactNode;
   creature: Creature;
@@ -33,11 +34,14 @@ export function CreatureContextMenu({
   handleModifyInitiative: (creatureId: number) => () => void;
   handleAddTag: (creatureId: number) => () => void;
   handleTagChange: (e: React.FormEvent, creatureId: number) => void;
+  className?: string;
 }) {
   const { id: creatureId, name } = creature;
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+      <ContextMenuTrigger asChild className={className}>
+        {children}
+      </ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuLabel>{name}</ContextMenuLabel>
         <ContextMenuItem onClick={handleApplyDamage(creatureId)}>

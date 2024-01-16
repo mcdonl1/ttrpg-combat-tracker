@@ -14,8 +14,10 @@ import { ScrollArea } from "~/@/components/ui/scroll-area";
 
 export function EncounterTable({
   creaturesList,
+  currentTurnIdx,
 }: {
   creaturesList: EncounterList;
+  currentTurnIdx: number;
 }) {
   const [tableList, setTableList] = useState(
     creaturesList.map((creature) => ({
@@ -117,7 +119,7 @@ export function EncounterTable({
             <TableHead>Tags</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="box-border border-separate">
           {tableList
             .sort((a, b) => a.initiative - b.initiative)
             .map((creature, index) => (
@@ -132,11 +134,17 @@ export function EncounterTable({
               >
                 <TableRow
                   draggable
-                  className={creature.isDraggedOver ? " border-t-4" : ""}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragLeave={(e) => handleDragOff(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
+                  className={
+                    " box-border border-separate border-2 border-transparent " +
+                    (currentTurnIdx === index
+                      ? "  border-slate-500 bg-slate-900"
+                      : "") +
+                    (creature.isDraggedOver ? " border-t-4" : "")
+                  }
                 >
                   <TableCell
                     className="font-medium"
