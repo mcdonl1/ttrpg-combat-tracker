@@ -15,10 +15,11 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import type { Creature } from "~/types/encounterTypes";
 
 export function CreatureContextMenu({
   children,
-  creatureId,
+  creature,
   handleApplyDamage,
   handleModifyStatblock,
   handleModifyInitiative,
@@ -26,19 +27,21 @@ export function CreatureContextMenu({
   handleTagChange,
 }: {
   children?: React.ReactNode;
-  creatureId: number;
+  creature: Creature;
   handleApplyDamage: (creatureId: number) => () => void;
   handleModifyStatblock: (creatureId: number) => () => void;
   handleModifyInitiative: (creatureId: number) => () => void;
   handleAddTag: (creatureId: number) => () => void;
   handleTagChange: (e: React.FormEvent, creatureId: number) => void;
 }) {
+  const { id: creatureId, name } = creature;
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
+        <ContextMenuLabel>{name}</ContextMenuLabel>
         <ContextMenuItem onClick={handleApplyDamage(creatureId)}>
-          Apply Damage to {creatureId}
+          Apply Damage
           <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onClick={handleModifyStatblock(creatureId)}>

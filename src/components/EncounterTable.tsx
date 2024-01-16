@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,6 +17,14 @@ export function EncounterTable({
 }: {
   creaturesList: EncounterList;
 }) {
+  const [tableList, setTableList] = useState(
+    creaturesList.map((creature) => ({
+      ...creature,
+      isDraggedOver: false,
+      isDragging: false,
+    })),
+  );
+
   const handleApplyDamage = (creatureId: number) => () => {
     console.log("apply damage to creature", creatureId);
   };
@@ -37,6 +45,61 @@ export function EncounterTable({
     console.log("tag change", e, creatureId);
   };
 
+  const array_move = (arr: any[], old_index: number, new_index: number) => {
+    if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+        arr.push(undefined);
+      }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    return arr;
+  };
+  const handleDrag = (e: any, index: number) => {
+    setTableList((prevList) => {
+      const newList = [...prevList];
+      newList[index]!.isDragging = true;
+      return newList;
+    });
+  };
+
+  const handleDragOver = (e: any, index: number) => {
+    e.preventDefault();
+    setTableList((prevList) => {
+      const newList = [...prevList];
+      newList[index]!.isDraggedOver = true;
+      return newList;
+    });
+  };
+
+  const handleDragOff = (e: any, index: number) => {
+    e.preventDefault();
+    setTableList((prevList) => {
+      const newList = [...prevList];
+      newList[index]!.isDraggedOver = false;
+      return newList;
+    });
+  };
+
+  const handleDrop = (e: any, index: number) => {
+    e.preventDefault();
+    setTableList((prevList) => {
+      const draggedCreatureIdx = prevList.findIndex(
+        (creature) => creature.isDragging,
+      );
+      const draggedCreature = prevList.find((creature) => creature.isDragging);
+      if (!draggedCreature) {
+        return prevList;
+      }
+      const onCreatureIdx = index;
+      draggedCreature!.isDragging = false;
+      draggedCreature!.initiative = prevList[onCreatureIdx]!.initiative;
+      let newList = [...prevList];
+      newList[index]!.isDraggedOver = false;
+      newList = array_move(newList, draggedCreatureIdx, onCreatureIdx);
+      return newList;
+    });
+  };
   return (
     <ScrollArea className="h-full">
       <Table>
@@ -50,30 +113,37 @@ export function EncounterTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {creaturesList
+          {tableList
             .sort((a, b) => a.initiative - b.initiative)
             .map((creature, index) => (
               <CreatureContextMenu
                 key={creature.id + index.toString()}
-                creatureId={index}
+                creature={creature}
                 handleApplyDamage={handleApplyDamage}
                 handleModifyStatblock={handleModifyStatblock}
                 handleModifyInitiative={handleModifyInitiative}
                 handleAddTag={handleAddTag}
                 handleTagChange={handleTagChange}
               >
-                <TableRow>
+                <TableRow
+                  draggable
+                  className={creature.isDraggedOver ? " border-t-4" : ""}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={(e) => handleDragOff(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragStart={(e) => handleDrag(e, index)}
+                >
                   <TableCell
                     className="font-medium"
-                    onClick={handleModifyInitiative(index)}
+                    onClick={handleModifyInitiative(creature.id)}
                   >
                     {creature.initiative}
                   </TableCell>
                   <TableCell className="font-medium">{creature.name}</TableCell>
                   <TableCell onClick={handleApplyDamage(index)}>
-                    {creature.hp}/{creature.hpMax}
+                    {creature.current_hp}/{creature.hit_points}
                   </TableCell>
-                  <TableCell>{creature.ac}</TableCell>
+                  <TableCell>{creature.armor_class}</TableCell>
                   <TableCell>{creature.tags.join(", ")}</TableCell>
                 </TableRow>
               </CreatureContextMenu>
