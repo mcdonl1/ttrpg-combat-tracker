@@ -138,13 +138,11 @@ export function EncounterTable({
                   onDragLeave={(e) => handleDragOff(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
-                  className={
-                    " box-border border-separate border-2 border-transparent " +
-                    (currentTurnIdx === index
+                  className={`box-border border-2 border-transparent ${
+                    currentTurnIdx === index
                       ? "  border-slate-500 bg-slate-900"
-                      : "") +
-                    (creature.isDraggedOver ? " border-t-4" : "")
-                  }
+                      : ""
+                  } ${currentTurnIdx - 1 === index ? "border-b-slate-500" : ""} ${creature.isDraggedOver ? " border-t-4" : ""}`}
                 >
                   <TableCell
                     className="font-medium"
