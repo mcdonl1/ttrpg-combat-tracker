@@ -22,7 +22,7 @@ export function EncounterTable({
   const [tableList, setTableList] = useState(
     creaturesList.map((creature) => ({
       ...creature,
-      isDraggedOver: false,
+      isDraggedOver: "no",
       isDragging: false,
     })),
   );
@@ -68,9 +68,18 @@ export function EncounterTable({
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
+    console.log(e);
     setTableList((prevList) => {
       const newList = [...prevList];
-      newList[index]!.isDraggedOver = true;
+      const draggedCreatureIdx = prevList.findIndex(
+        (creature) => creature.isDragging,
+      );
+      newList[index]!.isDraggedOver =
+        draggedCreatureIdx > index
+          ? "up"
+          : draggedCreatureIdx < index
+            ? "down"
+            : "no";
       return newList;
     });
   };
@@ -79,7 +88,7 @@ export function EncounterTable({
     e.preventDefault();
     setTableList((prevList) => {
       const newList = [...prevList];
-      newList[index]!.isDraggedOver = false;
+      newList[index]!.isDraggedOver = "no";
       return newList;
     });
   };
@@ -98,7 +107,7 @@ export function EncounterTable({
       draggedCreature!.isDragging = false;
       draggedCreature!.initiative = prevList[onCreatureIdx]!.initiative;
       let newList = [...prevList];
-      newList[index]!.isDraggedOver = false;
+      newList[index]!.isDraggedOver = "no";
       newList = array_move(
         newList,
         draggedCreatureIdx,
@@ -119,7 +128,7 @@ export function EncounterTable({
             <TableHead>Tags</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="box-border border-separate">
+        <TableBody className="box-border border-separate [&_tr:last-child]:border-2">
           {tableList
             .sort((a, b) => a.initiative - b.initiative)
             .map((creature, index) => (
@@ -140,9 +149,17 @@ export function EncounterTable({
                   onDragStart={(e) => handleDrag(e, index)}
                   className={`box-border border-2 border-transparent ${
                     currentTurnIdx === index
-                      ? "  border-slate-500 bg-slate-900"
+                      ? "border-slate-500 bg-slate-900"
                       : ""
-                  } ${currentTurnIdx - 1 === index ? "border-b-slate-500" : ""} ${creature.isDraggedOver ? " border-t-4" : ""}`}
+                  } ${
+                    currentTurnIdx - 1 === index ? "border-b-slate-500" : ""
+                  } ${
+                    creature.isDraggedOver === "up"
+                      ? "border-t-4 border-t-slate-500"
+                      : creature.isDraggedOver === "down"
+                        ? "border-b-4 border-b-slate-500"
+                        : ""
+                  }`}
                 >
                   <TableCell
                     className="font-medium"
