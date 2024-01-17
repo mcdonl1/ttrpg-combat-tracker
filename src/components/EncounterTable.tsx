@@ -47,16 +47,16 @@ export function EncounterTable({
     console.log("tag change", e, creatureId);
   };
 
-  const array_move = (arr: any[], old_index: number, new_index: number) => {
+  function array_move<T>(arr: T[], old_index: number, new_index: number) {
     if (new_index >= arr.length) {
-      var k = new_index - arr.length + 1;
+      let k = new_index - arr.length + 1;
       while (k--) {
-        arr.push(undefined);
+        arr.push(undefined as T);
       }
     }
-    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0] as T);
     return arr;
-  };
+  }
 
   const handleDrag = (e: React.DragEvent, index: number) => {
     setTableList((prevList) => {
@@ -104,15 +104,11 @@ export function EncounterTable({
         return prevList;
       }
       const onCreatureIdx = index;
-      draggedCreature!.isDragging = false;
-      draggedCreature!.initiative = prevList[onCreatureIdx]!.initiative;
+      draggedCreature.isDragging = false;
+      draggedCreature.initiative = prevList[onCreatureIdx]!.initiative;
       let newList = [...prevList];
       newList[index]!.isDraggedOver = "no";
-      newList = array_move(
-        newList,
-        draggedCreatureIdx,
-        onCreatureIdx,
-      ) as typeof tableList;
+      newList = array_move(newList, draggedCreatureIdx, onCreatureIdx);
       return newList;
     });
   };
