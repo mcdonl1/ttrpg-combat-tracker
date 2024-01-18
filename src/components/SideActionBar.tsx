@@ -1,12 +1,11 @@
+import { PropsWithChildren } from "react";
 import { Button } from "~/@/components/ui/button";
 
+type SideButtonProps = React.ComponentPropsWithoutRef<typeof Button>;
 const SideButton = ({
   children,
   ...props
-}: {
-  children: any;
-  [x: string]: any;
-}) => (
+}: PropsWithChildren<SideButtonProps>) => (
   <Button
     className="m-0 min-w-0 rounded-none bg-inherit"
     variant="outline"
