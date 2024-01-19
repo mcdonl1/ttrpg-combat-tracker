@@ -1,28 +1,15 @@
-import { PropsWithChildren } from "react";
-import { Button } from "~/@/components/ui/button";
-
-type SideButtonProps = React.ComponentPropsWithoutRef<typeof Button>;
-const SideButton = ({
-  children,
-  ...props
-}: PropsWithChildren<SideButtonProps>) => (
-  <Button
-    className="m-0 min-w-0 rounded-none bg-inherit"
-    variant="outline"
-    {...props}
-  >
-    <span className="flex items-center">{children}</span>
-  </Button>
-);
+import { SideButton } from "./SideButton";
 
 export const SideActionBar = ({
   actions,
+  expanded,
 }: {
   actions: {
     handler: () => void;
     icon: React.ReactNode;
     tooltip: string;
   }[];
+  expanded: boolean;
 }) => {
   return (
     <div className="flex h-full flex-col bg-slate-900">

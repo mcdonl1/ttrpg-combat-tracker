@@ -11,8 +11,8 @@ export default async function Home() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-4">
-        <h1 className="text-2xl font-semibold">Roll Initiative</h1>
+      <header className="flex items-center justify-between border-b px-6 py-2">
+        <h1 className="text-xl font-semibold">Roll Initiative</h1>
       </header>
       <main className="h-screen flex-1 overflow-hidden">
         <HomeView />
