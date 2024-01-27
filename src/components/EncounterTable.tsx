@@ -68,7 +68,6 @@ export function EncounterTable({
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    console.log(e);
     setTableList((prevList) => {
       const newList = [...prevList];
       const draggedCreatureIdx = prevList.findIndex(

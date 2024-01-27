@@ -29,6 +29,7 @@ export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
   const [creaturesList, setCreaturesList] = useState(dummyCreatures);
   const [expandSidebar, setExpandSidebar] = useState(false);
+  const [encounterStarted, setEncounterStarted] = useState(false);
 
   const sidebarActions = [
     {
