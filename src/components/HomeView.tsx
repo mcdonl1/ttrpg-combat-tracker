@@ -19,11 +19,13 @@ import {
   PinLeftIcon,
   PinRightIcon,
 } from "@radix-ui/react-icons";
+import { useState } from "react";
+
 import { EncounterTable } from "~/components/EncounterTable";
 import { dummyCreatures } from "~/constants/dummyData";
 import { SideActionBar } from "~/components/SideActionBar";
 import { SideButton } from "./SideButton";
-import { useState } from "react";
+import { CreatureSearch } from "./CreatureSearch";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -109,7 +111,6 @@ export function HomeView() {
     <div className="flex h-full">
       <div className={`${expandSidebar ? "" : "w-[36px]"}`}>
         <SideActionBar actions={sidebarActions} expanded={expandSidebar} />
-
         <SideButton onClick={() => setExpandSidebar((prev) => !prev)}>
           {expandSidebar ? <PinLeftIcon /> : <PinRightIcon />}
         </SideButton>
@@ -118,10 +119,12 @@ export function HomeView() {
         <ResizablePanel defaultSize={95}>
           <ResizablePanelGroup className="h-full" direction="horizontal">
             <ResizablePanel defaultSize={20}>
-              <div className="flex h-full flex-col border-r">
+              <div className="flex h-full flex-col border-r p-2">
                 <h4 className="border-b px-6 py-4">Left Panel</h4>
                 <div className="flex-1 overflow-auto">
-                  <div className="space-y-2 px-6 py-4"></div>
+                  <div className="space-y-2 py-4">
+                    <CreatureSearch />
+                  </div>
                 </div>
               </div>
             </ResizablePanel>

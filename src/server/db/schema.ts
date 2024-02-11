@@ -8,6 +8,8 @@ import {
   text,
   timestamp,
   varchar,
+  boolean,
+  json,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -110,3 +112,71 @@ export const verificationTokens = mysqlTable(
     compoundKey: primaryKey(vt.identifier, vt.token),
   }),
 );
+
+export const creatures = mysqlTable("creature", {
+  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  notes: varchar("notes", { length: 255 }),
+  slug: varchar("slug", { length: 255 }).notNull(),
+  desc: varchar("desc", { length: 255 }),
+  name: varchar("name", { length: 255 }).notNull(),
+  size: varchar("size", { length: 255 }),
+  type: varchar("type", { length: 255 }),
+  subtype: varchar("subtype", { length: 255 }),
+  group: varchar("group", { length: 255 }),
+  alignment: varchar("alignment", { length: 255 }),
+  armor_class: int("armor_class"),
+  armor_desc: varchar("armor_desc", { length: 255 }),
+  hit_points: int("hit_points"),
+  hit_dice: varchar("hit_dice", { length: 255 }),
+  speed: json("speed"),
+  strength: int("strength"),
+  dexterity: int("dexterity"),
+  constitution: int("constitution"),
+  intelligence: int("intelligence"),
+  wisdom: int("wisdom"),
+  charisma: int("charisma"),
+  strength_save: int("strength_save"),
+  dexterity_save: int("dexterity_save"),
+  constitution_save: int("constitution_save"),
+  intelligence_save: int("intelligence_save"),
+  wisdom_save: int("wisdom_save"),
+  charisma_save: int("charisma_save"),
+  perception: int("perception"),
+  skills: json("skills"),
+  damage_vulnerabilities: varchar("damage_vulnerabilities", {
+    length: 255,
+  }),
+  damage_resistances: varchar("damage_resistances", { length: 255 }),
+  damage_immunities: varchar("damage_immunities", { length: 255 }),
+  condition_immunities: varchar("condition_immunities", {
+    length: 255,
+  }),
+  senses: varchar("senses", { length: 255 }),
+  languages: varchar("languages", { length: 255 }),
+  challenge_rating: varchar("challenge_rating", { length: 255 }),
+  cr: int("cr"),
+  actions: json("actions"),
+  bonus_actions: json("bonus_actions"),
+  reactions: json("reactions"),
+  legendary_desc: varchar("legendary_desc", { length: 255 }),
+  legendary_actions: json("legendary_actions"),
+  special_abilities: json("special_abilities"),
+  spell_list: json("spell_list"),
+  page_no: int("page_no"),
+  environments: json("environments"),
+  img_main: varchar("img_main", { length: 255 }),
+  document__slug: varchar("document__slug", { length: 255 }),
+  document__title: varchar("document__title", { length: 255 }),
+  document__license_url: varchar("document__license_url", {
+    length: 255,
+  }),
+  document__url: varchar("document__url", { length: 255 }),
+  userId: varchar("userId", { length: 255 }),
+});
+
+export const creatureRelations = relations(creatures, ({ one }) => ({
+  user: one(users, {
+    fields: [creatures.userId],
+    references: [users.id],
+  }),
+}));

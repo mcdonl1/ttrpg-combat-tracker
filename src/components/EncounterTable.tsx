@@ -12,6 +12,8 @@ import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 
+import { api } from "~/trpc/server";
+
 export function EncounterTable({
   creaturesList,
   currentTurnIdx,
@@ -26,24 +28,23 @@ export function EncounterTable({
       isDragging: false,
     })),
   );
-
-  const handleApplyDamage = (creatureId: number) => () => {
+  const handleApplyDamage = (creatureId: string) => () => {
     console.log("apply damage to creature", creatureId);
   };
 
-  const handleModifyStatblock = (creatureId: number) => () => {
+  const handleModifyStatblock = (creatureId: string) => () => {
     console.log("modify statblock for creature", creatureId);
   };
 
-  const handleModifyInitiative = (creatureId: number) => () => {
+  const handleModifyInitiative = (creatureId: string) => () => {
     console.log("modify initiative for creature", creatureId);
   };
 
-  const handleAddTag = (creatureId: number) => () => {
+  const handleAddTag = (creatureId: string) => () => {
     console.log("add tag to creature", creatureId);
   };
 
-  const handleTagChange = (e: React.FormEvent, creatureId: number) => {
+  const handleTagChange = (e: React.FormEvent, creatureId: string) => {
     console.log("tag change", e, creatureId);
   };
 
@@ -59,6 +60,7 @@ export function EncounterTable({
   }
 
   const handleDrag = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/json", "dummy");
     setTableList((prevList) => {
       const newList = [...prevList];
       newList[index]!.isDragging = true;
@@ -121,6 +123,7 @@ export function EncounterTable({
             <TableHead className="w-[50px]">HP</TableHead>
             <TableHead className="w-[50px]">AC</TableHead>
             <TableHead>Tags</TableHead>
+            <TableHead className="w-[50px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="box-border border-separate [&_tr:last-child]:border-2">
@@ -163,11 +166,12 @@ export function EncounterTable({
                     {creature.initiative}
                   </TableCell>
                   <TableCell className="font-medium">{creature.name}</TableCell>
-                  <TableCell onClick={handleApplyDamage(index)}>
+                  <TableCell onClick={handleApplyDamage(creature.id)}>
                     {creature.current_hp}/{creature.hit_points}
                   </TableCell>
                   <TableCell>{creature.armor_class}</TableCell>
                   <TableCell>{creature.tags.join(", ")}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </CreatureContextMenu>
             ))}

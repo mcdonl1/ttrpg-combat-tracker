@@ -15,7 +15,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import type { Creature } from "~/types/encounterTypes";
+import type { EncounterCreature } from "~/types/encounterTypes";
 
 export function CreatureContextMenu({
   children,
@@ -28,12 +28,12 @@ export function CreatureContextMenu({
   className,
 }: {
   children?: React.ReactNode;
-  creature: Creature;
-  handleApplyDamage: (creatureId: number) => () => void;
-  handleModifyStatblock: (creatureId: number) => () => void;
-  handleModifyInitiative: (creatureId: number) => () => void;
-  handleAddTag: (creatureId: number) => () => void;
-  handleTagChange: (e: React.FormEvent, creatureId: number) => void;
+  creature: EncounterCreature;
+  handleApplyDamage: (creatureId: string) => () => void;
+  handleModifyStatblock: (creatureId: string) => () => void;
+  handleModifyInitiative: (creatureId: string) => () => void;
+  handleAddTag: (creatureId: string) => () => void;
+  handleTagChange: (e: React.FormEvent, creatureId: string) => void;
   className?: string;
 }) {
   const { id: creatureId, name } = creature;
