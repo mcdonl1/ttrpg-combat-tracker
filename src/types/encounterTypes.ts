@@ -1,5 +1,5 @@
-import { creatures } from "~/server/db/schema";
-import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
+import type { creatures } from "~/server/db/schema";
+import { type InferSelectModel } from "drizzle-orm";
 
 export type Speed = {
   walk?: number;

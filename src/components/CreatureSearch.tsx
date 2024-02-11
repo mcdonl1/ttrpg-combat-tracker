@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 
-import { Creature } from "~/types/encounterTypes";
+import type { Creature } from "~/types/encounterTypes";
 import { api } from "~/trpc/react";
 
 export function CreatureSearch() {
@@ -19,7 +19,6 @@ export function CreatureSearch() {
   );
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    console.log(e);
     const searchValue = e.target.value;
     if (searchValue.length < 3) {
       return;
@@ -28,7 +27,7 @@ export function CreatureSearch() {
   };
   return (
     <div>
-      <div className="relative">
+      <div className="relative px-1">
         <MagnifyingGlassIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search" className="pl-8" onChange={handleSearch} />
       </div>

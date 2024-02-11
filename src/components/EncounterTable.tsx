@@ -12,8 +12,6 @@ import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 
-import { api } from "~/trpc/server";
-
 export function EncounterTable({
   creaturesList,
   currentTurnIdx,

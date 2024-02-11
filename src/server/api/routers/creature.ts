@@ -5,8 +5,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { creatures } from "~/server/db/schema";
-import { InferSelectModel } from "drizzle-orm";
+import type { creatures } from "~/server/db/schema";
+import type { InferSelectModel } from "drizzle-orm";
 import { env } from "~/env";
 
 type Creature = InferSelectModel<typeof creatures>;
@@ -37,8 +37,8 @@ export const creatureRouter = createTRPCRouter({
       const res = await fetch(
         `${env.DND_API_URL}monsters/?search=${input.searchTerm}&format=json`,
       );
-      const creaturesList: CreatureResponse = await res.json();
-      console.log(creaturesList.results.map((c: Creature) => c.name));
+      const creaturesList: CreatureResponse = await res.json() as CreatureResponse;
+      console.log(creaturesList.results);
       return creaturesList.results ?? [];
       // return ctx.db.query.creatures.findFirst({
       //   orderBy: (creatures, { desc }) => [desc(creatures.slug)],

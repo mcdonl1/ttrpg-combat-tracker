@@ -120,7 +120,7 @@ export function HomeView() {
           <ResizablePanelGroup className="h-full" direction="horizontal">
             <ResizablePanel defaultSize={20}>
               <div className="flex h-full flex-col border-r p-2">
-                <h4 className="border-b px-6 py-4">Left Panel</h4>
+                <h4 className="border-b px-6 py-4">Library</h4>
                 <div className="flex-1 overflow-auto">
                   <div className="space-y-2 py-4">
                     <CreatureSearch />
