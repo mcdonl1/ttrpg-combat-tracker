@@ -19,30 +19,38 @@ type CreatureResponse = {
 };
 
 export const creatureRouter = createTRPCRouter({
-  create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  // create: protectedProcedure
+  //   .input(z.object({ name: z.string().min(1) }))
+  //   .mutation(async ({ ctx, input }) => {
+  //     // simulate a slow db call
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      //   await ctx.db.insert(creatures).values({
-      //     name: input.name,
-      //     createdById: ctx.session.user.id,
-      //   });
+  //       await ctx.db.insert(creatures).values({
+  //         name: input.name,
+  //         createdById: ctx.session.user.id,
+  //       });
+  //   }),
+  getDummyCreautures: publicProcedure
+    .input(z.object({ count: z.number().min(0) }))
+    .query(async ({ input }) => {
+      const res = await fetch(
+        `${env.DND_API_URL}monsters/?limit=${input.count}&format=json`,
+      );
+      const creaturesList: CreatureResponse =
+        (await res.json()) as CreatureResponse;
+      console.log(creaturesList.results);
+      return creaturesList.results ?? [];
     }),
-
   getCreatureSearch: publicProcedure
     .input(z.object({ searchTerm: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const res = await fetch(
         `${env.DND_API_URL}monsters/?search=${input.searchTerm}&format=json`,
       );
-      const creaturesList: CreatureResponse = await res.json() as CreatureResponse;
+      const creaturesList: CreatureResponse =
+        (await res.json()) as CreatureResponse;
       console.log(creaturesList.results);
       return creaturesList.results ?? [];
-      // return ctx.db.query.creatures.findFirst({
-      //   orderBy: (creatures, { desc }) => [desc(creatures.slug)],
-      // });
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

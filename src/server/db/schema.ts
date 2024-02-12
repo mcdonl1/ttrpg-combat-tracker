@@ -8,7 +8,6 @@ import {
   text,
   timestamp,
   varchar,
-  boolean,
   json,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -129,6 +128,7 @@ export const creatures = mysqlTable("creature", {
   hit_points: int("hit_points"),
   hit_dice: varchar("hit_dice", { length: 255 }),
   speed: json("speed"),
+  initiative_modifier: int("initiative_modifier"),
   strength: int("strength"),
   dexterity: int("dexterity"),
   constitution: int("constitution"),

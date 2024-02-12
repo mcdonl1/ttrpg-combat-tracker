@@ -14,18 +14,19 @@ import { ScrollArea } from "~/@/components/ui/scroll-area";
 
 export function EncounterTable({
   creaturesList,
+  setCreaturesList,
   currentTurnIdx,
 }: {
   creaturesList: EncounterList;
+  setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
   currentTurnIdx: number;
 }) {
-  const [tableList, setTableList] = useState(
-    creaturesList.map((creature) => ({
-      ...creature,
-      isDraggedOver: "no",
-      isDragging: false,
-    })),
-  );
+  const [draggedOver, setDraggedOver] = useState({
+    idx: -1,
+    direction: "none",
+  });
+  const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
+
   const handleApplyDamage = (creatureId: string) => () => {
     console.log("apply damage to creature", creatureId);
   };
@@ -59,55 +60,36 @@ export function EncounterTable({
 
   const handleDrag = (e: React.DragEvent, index: number) => {
     e.dataTransfer.setData("text/json", "dummy");
-    setTableList((prevList) => {
-      const newList = [...prevList];
-      newList[index]!.isDragging = true;
-      return newList;
-    });
+    setIsDraggingIdx(index);
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    setTableList((prevList) => {
-      const newList = [...prevList];
-      const draggedCreatureIdx = prevList.findIndex(
-        (creature) => creature.isDragging,
-      );
-      newList[index]!.isDraggedOver =
-        draggedCreatureIdx > index
-          ? "up"
-          : draggedCreatureIdx < index
-            ? "down"
-            : "no";
-      return newList;
+    setDraggedOver({
+      idx: index,
+      direction:
+        isDraggingIdx > index ? "up" : isDraggingIdx < index ? "down" : "none",
     });
   };
 
-  const handleDragOff = (e: React.DragEvent, index: number) => {
+  const handleDragOff = (e: React.DragEvent) => {
     e.preventDefault();
-    setTableList((prevList) => {
-      const newList = [...prevList];
-      newList[index]!.isDraggedOver = "no";
-      return newList;
-    });
+    setDraggedOver({ idx: -1, direction: "none" });
   };
 
   const handleDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    setTableList((prevList) => {
-      const draggedCreatureIdx = prevList.findIndex(
-        (creature) => creature.isDragging,
-      );
-      const draggedCreature = prevList.find((creature) => creature.isDragging);
+    setCreaturesList((prevList) => {
+      const draggedCreature = prevList[isDraggingIdx];
       if (!draggedCreature) {
         return prevList;
       }
       const onCreatureIdx = index;
-      draggedCreature.isDragging = false;
+      setIsDraggingIdx(-1);
       draggedCreature.initiative = prevList[onCreatureIdx]!.initiative;
       let newList = [...prevList];
-      newList[index]!.isDraggedOver = "no";
-      newList = array_move(newList, draggedCreatureIdx, onCreatureIdx);
+      setDraggedOver({ idx: -1, direction: "none" });
+      newList = array_move(newList, isDraggingIdx, onCreatureIdx);
       return newList;
     });
   };
@@ -125,8 +107,8 @@ export function EncounterTable({
           </TableRow>
         </TableHeader>
         <TableBody className="box-border border-separate [&_tr:last-child]:border-2">
-          {tableList
-            .sort((a, b) => a.initiative - b.initiative)
+          {creaturesList
+            .sort((a, b) => b.initiative - a.initiative)
             .map((creature, index) => (
               <CreatureContextMenu
                 key={creature.id + index.toString()}
@@ -140,7 +122,7 @@ export function EncounterTable({
                 <TableRow
                   draggable
                   onDragOver={(e) => handleDragOver(e, index)}
-                  onDragLeave={(e) => handleDragOff(e, index)}
+                  onDragLeave={(e) => handleDragOff(e)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
                   className={`box-border border-2 border-transparent ${
@@ -150,9 +132,10 @@ export function EncounterTable({
                   } ${
                     currentTurnIdx - 1 === index ? "border-b-slate-500" : ""
                   } ${
-                    creature.isDraggedOver === "up"
+                    draggedOver.idx === index && draggedOver.direction === "up"
                       ? "border-t-4 border-t-slate-500"
-                      : creature.isDraggedOver === "down"
+                      : draggedOver.idx === index &&
+                          draggedOver.direction === "down"
                         ? "border-b-4 border-b-slate-500"
                         : ""
                   }`}

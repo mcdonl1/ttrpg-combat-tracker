@@ -39,6 +39,7 @@ export function CreatureSearch() {
                 <li key={result.id} className="px-6 py-2">
                   {result.name}
                 </li>
+                
               ))}
         </ul>
       </div>

@@ -18,8 +18,9 @@ import {
   TrashIcon,
   PinLeftIcon,
   PinRightIcon,
+  PlayIcon,
 } from "@radix-ui/react-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { EncounterTable } from "~/components/EncounterTable";
 import { dummyCreatures } from "~/constants/dummyData";
@@ -27,12 +28,28 @@ import { SideActionBar } from "~/components/SideActionBar";
 import { SideButton } from "./SideButton";
 import { CreatureSearch } from "./CreatureSearch";
 
+import { rollDice, modifierFromScore } from "~/utils/utils";
+import { api } from "~/trpc/react";
+
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
   const [creaturesList, setCreaturesList] = useState(dummyCreatures);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
+  const results = api.creatures.getDummyCreautures.useQuery({
+    count: 10,
+  });
 
+  useEffect(() => {
+    if (!results.isLoading && results.data) {
+      setCreaturesList(results.data.map((creature) => ({
+        ...creature,
+        initiative: 0,
+        current_hp: creature.hit_points,
+        tags: []
+      })));
+    }
+  }, [results.isLoading, results.data])
   const sidebarActions = [
     {
       handler: () => {
@@ -52,10 +69,22 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("end encounter");
+        if (!encounterStarted) {
+          setCurrentTurnIdx(0);
+          setCreaturesList((prev) =>
+            prev.map((creature) => ({
+              ...creature,
+              initiative:
+                (rollDice(1, 20)[0] ?? 10) +
+                (creature.initiative_modifier ??
+                  modifierFromScore(creature.dexterity ?? 10)),
+            })),
+          );
+        }
+        setEncounterStarted((prev) => !prev);
       },
-      icon: <StopIcon />,
-      tooltip: "End Encounter",
+      icon: encounterStarted ? <StopIcon /> : <PlayIcon />,
+      tooltip: encounterStarted ? "End Encounter" : "Start Encounter",
     },
     {
       handler: () => {
@@ -107,6 +136,7 @@ export function HomeView() {
       tooltip: "Edit Settings",
     },
   ];
+  console.log("creaturesList", creaturesList);
   return (
     <div className="flex h-full">
       <div className={`${expandSidebar ? "" : "w-[36px]"}`}>
@@ -132,6 +162,7 @@ export function HomeView() {
             <ResizablePanel defaultSize={60}>
               <EncounterTable
                 creaturesList={creaturesList}
+                setCreaturesList={setCreaturesList}
                 currentTurnIdx={currentTurnIdx}
               />
             </ResizablePanel>
