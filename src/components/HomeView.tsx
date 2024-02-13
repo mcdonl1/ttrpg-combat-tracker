@@ -23,17 +23,18 @@ import {
 import { useEffect, useState } from "react";
 
 import { EncounterTable } from "~/components/EncounterTable";
-import { dummyCreatures } from "~/constants/dummyData";
 import { SideActionBar } from "~/components/SideActionBar";
 import { SideButton } from "./SideButton";
 import { CreatureSearch } from "./CreatureSearch";
+
+import { type EncounterCreature } from "~/types/encounterTypes";
 
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
-  const [creaturesList, setCreaturesList] = useState(dummyCreatures);
+  const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
   const results = api.creatures.getDummyCreautures.useQuery({
@@ -45,8 +46,10 @@ export function HomeView() {
       setCreaturesList(results.data.map((creature) => ({
         ...creature,
         initiative: 0,
-        current_hp: creature.hit_points,
-        tags: []
+        current_hp: creature.hit_points ?? 0,
+        tags: [],
+        isPlayer: false,
+        current_conditions: [],
       })));
     }
   }, [results.isLoading, results.data])

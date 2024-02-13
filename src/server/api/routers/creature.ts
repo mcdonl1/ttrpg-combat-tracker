@@ -34,7 +34,7 @@ export const creatureRouter = createTRPCRouter({
     .input(z.object({ count: z.number().min(0) }))
     .query(async ({ input }) => {
       const res = await fetch(
-        `${env.DND_API_URL}monsters/?limit=${input.count}&format=json`,
+        `${env.DND_API_URL}/monsters/?limit=${input.count}&format=json`,
       );
       const creaturesList: CreatureResponse =
         (await res.json()) as CreatureResponse;
@@ -45,7 +45,7 @@ export const creatureRouter = createTRPCRouter({
     .input(z.object({ searchTerm: z.string().min(1) }))
     .query(async ({ input }) => {
       const res = await fetch(
-        `${env.DND_API_URL}monsters/?search=${input.searchTerm}&format=json`,
+        `${env.DND_API_URL}/monsters/?search=${input.searchTerm}&format=json`,
       );
       const creaturesList: CreatureResponse =
         (await res.json()) as CreatureResponse;
