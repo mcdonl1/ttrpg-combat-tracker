@@ -32,14 +32,15 @@ import type { EncounterCreature, Creature } from "~/types/encounterTypes";
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import clsx from "clsx";
+import { set } from "zod";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
-  const [selectedCreaturesIdx, setSelectedCreaturesIdx] = useState<number[]>([]);
+  const [selectedCreaturesIds, setSelectedCreaturesIds] = useState<string[]>([]);
   const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
-  const [editNameIdx, setEditNameIdx] = useState(-1);
+  const [editNameId, setEditNameId] = useState("");
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [addedCreatureId, setAddedCreatureId] = useState("");
@@ -132,8 +133,8 @@ export function HomeView() {
     },
     {
       handler: () => {
-        if (selectedCreaturesIdx.length > 0) {
-          setEditNameIdx(selectedCreaturesIdx[selectedCreaturesIdx.length - 1] ?? -1);
+        if (selectedCreaturesIds.length > 0) {
+          setEditNameId(selectedCreaturesIds[selectedCreaturesIds.length - 1]!);
         }
       },
       icon: <CursorTextIcon />,
@@ -155,7 +156,20 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("link initiative");
+        if (selectedCreaturesIds.length > 1) {
+          const maxSharedInitiative = creaturesList.find(creature => creature.id === selectedCreaturesIds[0])!.initiative;
+          setCreaturesList((prev) =>
+            prev.map((creature) => {
+              if (selectedCreaturesIds.includes(creature.id)) {
+                return {
+                  ...creature,
+                  initiative: maxSharedInitiative,
+                };
+              }
+              return creature;
+            }),
+          );
+        }
       },
       icon: <Link1Icon />,
       tooltip: "Link Initiative",
@@ -264,10 +278,10 @@ export function HomeView() {
                 creaturesList={creaturesList}
                 setCreaturesList={setCreaturesList}
                 currentTurnIdx={currentTurnIdx}
-                editNameIdx={editNameIdx}
-                setEditNameIdx={setEditNameIdx}
-                selectedCreaturesIdx={selectedCreaturesIdx}
-                setSelectedCreaturesIdx={setSelectedCreaturesIdx}
+                editNameId={editNameId}
+                setEditNameId={setEditNameId}
+                selectedCreaturesIds={selectedCreaturesIds}
+                setSelectedCreaturesIds={setSelectedCreaturesIds}
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}                
               />
             </ResizablePanel>

@@ -20,20 +20,20 @@ export function EncounterTable({
   creaturesList,
   setCreaturesList,
   currentTurnIdx,
-  editNameIdx,
-  setEditNameIdx,
-  selectedCreaturesIdx,
-  setSelectedCreaturesIdx,
+  editNameId,
+  setEditNameId,
+  selectedCreaturesIds,
+  setSelectedCreaturesIds,
   isCmdOrCtrlPressed,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
   currentTurnIdx: number;
-  editNameIdx: number;
-  setEditNameIdx: React.Dispatch<React.SetStateAction<number>>;
-  selectedCreaturesIdx: number[];
-  setSelectedCreaturesIdx: React.Dispatch<React.SetStateAction<number[]>>;
-  isCmdOrCtrlPressed: boolean;              
+  editNameId: string;
+  setEditNameId: React.Dispatch<React.SetStateAction<string>>;
+  selectedCreaturesIds: string[];
+  setSelectedCreaturesIds: React.Dispatch<React.SetStateAction<string[]>>;
+  isCmdOrCtrlPressed: boolean;
 }) {
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
@@ -44,27 +44,30 @@ export function EncounterTable({
 
   const eventListener = useCallback(
     (e: KeyboardEvent) => {
-      if (editNameIdx !== -1) {
+      if (editNameId.length > 0) {
         if (e.key === "Escape") {
-          setEditNameIdx(-1);
+          setEditNameId("");
         }
         if (e.key === "Enter") {
           setCreaturesList((prevList) => {
             const newList = [...prevList];
-            newList[editNameIdx]!.name = nameBuffer;
+            newList.find((creature) => creature.id === editNameId)!.name =
+              nameBuffer;
             return newList;
           });
-          setEditNameIdx(-1);
+          setEditNameId("");
         }
       }
     },
-    [editNameIdx, setCreaturesList, setEditNameIdx, nameBuffer],
+    [editNameId, setCreaturesList, setEditNameId, nameBuffer],
   );
 
   useEffect(() => {
-    if (editNameIdx !== -1) {
-      setNameBuffer(creaturesList[editNameIdx]!.name);
-      const el = document.getElementById(`name-edit-input-${editNameIdx}`);
+    if (editNameId.length > 0) {
+      setNameBuffer(
+        creaturesList.find((creature) => creature.id === editNameId)!.name,
+      );
+      const el = document.getElementById(`name-edit-input-${editNameId}`);
       el?.focus();
       window.addEventListener("keydown", eventListener, true);
       return () => {
@@ -72,10 +75,10 @@ export function EncounterTable({
       };
     }
   }, [
-    editNameIdx,
+    editNameId,
     creaturesList,
     setCreaturesList,
-    setEditNameIdx,
+    setEditNameId,
     eventListener,
   ]);
 
@@ -153,18 +156,22 @@ export function EncounterTable({
   const handleNameUpdate = (e: React.FormEvent) => {
     e.preventDefault();
 
-    setEditNameIdx(-1);
+    setEditNameId("");
   };
 
-  const handleSelect = (idx: number) =>  {
-    setSelectedCreaturesIdx(prev => {
+  const handleSelect = (id: string) => {
+    setSelectedCreaturesIds((prev) => {
       if (isCmdOrCtrlPressed) {
-        return [...prev, idx];
+        return [...prev, id].sort(
+          (a, b) =>
+            creaturesList.findIndex((creature) => creature.id === a) -
+            creaturesList.findIndex((creature) => creature.id === b),
+        );
       } else {
-        return [idx];
+        return [id];
       }
     });
-  }
+  };
   return (
     <ScrollArea className="h-full">
       <Table>
@@ -193,7 +200,7 @@ export function EncounterTable({
               >
                 <TableRow
                   draggable
-                  onClick={() => handleSelect(index)}
+                  onClick={() => handleSelect(creature.id)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragLeave={(e) => handleDragOff(e)}
                   onDrop={(e) => handleDrop(e, index)}
@@ -210,7 +217,9 @@ export function EncounterTable({
                           draggedOver.direction === "down"
                         ? "border-b-4 border-b-slate-500"
                         : "",
-                    selectedCreaturesIdx.includes(index) ? "bg-slate-800 hover:bg-slate-800" : "",
+                    selectedCreaturesIds.includes(creature.id)
+                      ? "bg-slate-800 hover:bg-slate-800"
+                      : "",
                   ])}
                 >
                   <TableCell
@@ -220,12 +229,12 @@ export function EncounterTable({
                     {creature.initiative}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {editNameIdx === index ? (
+                    {editNameId === creature.id ? (
                       <Input
                         id={`name-edit-input-${index}`}
                         value={nameBuffer}
                         onChange={handleNameEdit}
-                        onBlur={() => setEditNameIdx(-1)}
+                        onBlur={() => setEditNameId("")}
                       ></Input>
                     ) : (
                       creature.name
