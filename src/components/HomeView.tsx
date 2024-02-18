@@ -46,6 +46,8 @@ export function HomeView() {
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [addedCreatureId, setAddedCreatureId] = useState("");
 
+  const [creatureSearchValue, setCreatureSearchValue] = useState("");
+
   const [isCmdOrCtrlPressed, setIsCmdOrCtrlPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -59,10 +61,10 @@ export function HomeView() {
   };
 
   const handleKeyUp = (event: KeyboardEvent) => {
-    if (!event.metaKey && !event.ctrlKey) {
+    if (event.metaKey && event.ctrlKey) {
       setIsCmdOrCtrlPressed(false);
     }
-    if (!event.shiftKey) {
+    if (event.shiftKey) {
       setIsShiftPressed(false);
     }
   };
@@ -291,6 +293,8 @@ export function HomeView() {
                       <div className="space-y-2 py-4">
                         <CreatureSearch
                           optionClickHandler={handleClickSearchOption}
+                          creatureSearchValue={creatureSearchValue}
+                          setCreatureSearchValue={setCreatureSearchValue}
                         />
                       </div>
                     </div>

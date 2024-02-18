@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 
@@ -9,11 +8,14 @@ import { api } from "~/trpc/react";
 
 export function CreatureSearch({
   optionClickHandler,
+  creatureSearchValue,
+  setCreatureSearchValue,
 }: {
   optionClickHandler: (creatureId: string) => void;
+  creatureSearchValue: string;
+  setCreatureSearchValue: (value: string) => void;
 }) {
-  const [searchValue, setSearchValue] = useState("");
-  const debouncedSearchValue = useDebounce(searchValue, 500);
+  const debouncedSearchValue = useDebounce(creatureSearchValue, 500);
   const results = api.creatures.getCreatureSearch.useQuery(
     {
       searchTerm: debouncedSearchValue,
@@ -24,11 +26,11 @@ export function CreatureSearch({
   );
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const searchValue = e.target.value;
-    if (searchValue.length < 3) {
+    const creatureSearchValue = e.target.value;
+    if (creatureSearchValue.length < 3) {
       return;
     }
-    setSearchValue(searchValue);
+    setCreatureSearchValue(creatureSearchValue);
   };
   return (
     <div>
