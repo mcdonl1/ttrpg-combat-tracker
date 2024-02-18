@@ -47,16 +47,23 @@ export function HomeView() {
   const [addedCreatureId, setAddedCreatureId] = useState("");
 
   const [isCmdOrCtrlPressed, setIsCmdOrCtrlPressed] = useState(false);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.metaKey || event.ctrlKey) {
       setIsCmdOrCtrlPressed(true);
+    }
+    if (event.shiftKey) {
+      setIsShiftPressed(true);
     }
   };
 
   const handleKeyUp = (event: KeyboardEvent) => {
     if (!event.metaKey && !event.ctrlKey) {
       setIsCmdOrCtrlPressed(false);
+    }
+    if (!event.shiftKey) {
+      setIsShiftPressed(false);
     }
   };
 
@@ -150,10 +157,10 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("edit statblock");
+        setShowLeftPanel(true);
       },
       icon: <FileTextIcon />,
-      tooltip: "Edit Statblock",
+      tooltip: "Open Libary",
     },
     {
       handler: () => {
@@ -186,7 +193,16 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("remove creature");
+        if (selectedCreaturesIds.length > 0) {
+          const selectedCreaturesIdsCopy = [...selectedCreaturesIds];
+          setSelectedCreaturesIds([]);
+          setCreaturesList((prev) =>
+            prev.filter(
+              (creature) => !selectedCreaturesIdsCopy.includes(creature.id),
+            ),
+          );
+        }
+        
       },
       icon: <TrashIcon />,
       tooltip: "Remove",
@@ -228,6 +244,12 @@ export function HomeView() {
     }
   }, [addedCreature.data, addedCreature.isLoading, addedCreature.isError]);
 
+  useEffect(() => {
+    if (selectedCreaturesIds.length > 0) {
+      setShowRightPanel(true);
+    }
+  }, [selectedCreaturesIds, setShowRightPanel]);
+
   return (
     <div className="flex h-full">
       <div
@@ -242,7 +264,8 @@ export function HomeView() {
           expanded={expandSidebar}
           displayText="Collapse"
           title={expandSidebar ? "Collapse" : "Expand"}
-          className="hover:bg-slate-full flex justify-between rounded-none border-none bg-inherit hover:text-slate-600"
+          className={clsx(["hover:bg-slate-full flex rounded-none border-none bg-inherit hover:text-slate-600",
+            expandSidebar ? "justify-between" : "justify-center"])}
         >
           {expandSidebar ? <PinLeftIcon /> : <PinRightIcon />}
         </SideButton>
@@ -286,6 +309,7 @@ export function HomeView() {
                 selectedCreaturesIds={selectedCreaturesIds}
                 setSelectedCreaturesIds={setSelectedCreaturesIds}
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}
+                isShiftPressed={isShiftPressed}
               />
             </ResizablePanel>
             {showRightPanel && (
@@ -300,7 +324,7 @@ export function HomeView() {
                       >
                         <PinRightIcon />
                       </SideButton>
-                      <h4 className="px-6 py-2">Right Panel</h4>
+                      <h4 className="px-6 py-2">Details</h4>
                     </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">
@@ -319,7 +343,7 @@ export function HomeView() {
                                 <p>{JSON.stringify(value, null, 2)}</p>
                               </div>
                             ))
-                          : "Select a creature to view its information here."}
+                          : <span className="text-slate-600 font-light">Select a creature to view its information here</span>}
                       </div>
                     </div>
                   </div>

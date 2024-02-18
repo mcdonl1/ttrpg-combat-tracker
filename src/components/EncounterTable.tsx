@@ -23,6 +23,7 @@ export function EncounterTable({
   selectedCreaturesIds,
   setSelectedCreaturesIds,
   isCmdOrCtrlPressed,
+  isShiftPressed,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
@@ -32,6 +33,7 @@ export function EncounterTable({
   selectedCreaturesIds: string[];
   setSelectedCreaturesIds: React.Dispatch<React.SetStateAction<string[]>>;
   isCmdOrCtrlPressed: boolean;
+  isShiftPressed: boolean;
 }) {
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
@@ -165,6 +167,18 @@ export function EncounterTable({
             creaturesList.findIndex((creature) => creature.id === a) -
             creaturesList.findIndex((creature) => creature.id === b),
         );
+      } else if (isShiftPressed) {
+        const firstSelectedIdx = creaturesList.findIndex(
+          (creature) => creature.id === prev[0],
+        );
+        const currentIdx = creaturesList.findIndex(
+          (creature) => creature.id === id,
+        );
+        const min = Math.min(firstSelectedIdx, currentIdx);
+        const max = Math.max(firstSelectedIdx, currentIdx);
+        return creaturesList
+          .slice(min, max + 1)
+          .map((creature) => creature.id);
       } else {
         return [id];
       }
