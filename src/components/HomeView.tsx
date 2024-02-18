@@ -35,7 +35,9 @@ import clsx from "clsx";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
-  const [selectedCreaturesIds, setSelectedCreaturesIds] = useState<string[]>([]);
+  const [selectedCreaturesIds, setSelectedCreaturesIds] = useState<string[]>(
+    [],
+  );
   const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
@@ -59,12 +61,12 @@ export function HomeView() {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
@@ -90,7 +92,7 @@ export function HomeView() {
   useEffect(() => {
     if (!dummyCreatures.isLoading && dummyCreatures.data) {
       setCreaturesList(
-        dummyCreatures.data.map((creature) => (buildEncounterCreature(creature))),
+        dummyCreatures.data.map((creature) => buildEncounterCreature(creature)),
       );
     }
   }, [dummyCreatures.isLoading, dummyCreatures.data]);
@@ -156,7 +158,9 @@ export function HomeView() {
     {
       handler: () => {
         if (selectedCreaturesIds.length > 1) {
-          const maxSharedInitiative = creaturesList.find(creature => creature.id === selectedCreaturesIds[0])!.initiative;
+          const maxSharedInitiative = creaturesList.find(
+            (creature) => creature.id === selectedCreaturesIds[0],
+          )!.initiative;
           setCreaturesList((prev) =>
             prev.map((creature) => {
               if (selectedCreaturesIds.includes(creature.id)) {
@@ -281,7 +285,7 @@ export function HomeView() {
                 setEditNameId={setEditNameId}
                 selectedCreaturesIds={selectedCreaturesIds}
                 setSelectedCreaturesIds={setSelectedCreaturesIds}
-                isCmdOrCtrlPressed={isCmdOrCtrlPressed}                
+                isCmdOrCtrlPressed={isCmdOrCtrlPressed}
               />
             </ResizablePanel>
             {showRightPanel && (
@@ -299,7 +303,24 @@ export function HomeView() {
                       <h4 className="px-6 py-2">Right Panel</h4>
                     </div>
                     <div className="flex-1 overflow-auto">
-                      <div className="space-y-2 px-6 py-4">Some content</div>
+                      <div className="space-y-2 px-6 py-4">
+                        {selectedCreaturesIds.length > 0
+                          ? Object.entries(
+                              creaturesList.find(
+                                (creature) =>
+                                  creature.id ===
+                                  selectedCreaturesIds[
+                                    selectedCreaturesIds.length - 1
+                                  ],
+                              )!,
+                            ).map(([key, value]) => (
+                              <div key={key} className="border-b pb-3">
+                                <p className="text-slate-500">{key.charAt(0).toUpperCase() + key.slice(1)}</p>
+                                <p>{JSON.stringify(value, null, 2)}</p>
+                              </div>
+                            ))
+                          : "Select a creature to view its information here."}
+                      </div>
                     </div>
                   </div>
                 </ResizablePanel>
