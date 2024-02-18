@@ -9,7 +9,7 @@ import {
 import {seedDbCreatures} from "~/scripts/db"
 
 export const creatureRouter = createTRPCRouter({
-  getDummyCreautures: publicProcedure
+  getDummyCreatures: publicProcedure
     .input(z.object({ count: z.number().min(0) }))
     .query(async ({ input, ctx }) => {
       const creaturesList = ctx.db.query.creatures.findMany({
@@ -23,6 +23,7 @@ export const creatureRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const creaturesList = ctx.db.query.creatures.findMany({
         columns:{
+          id:true,
           name:true,
           challenge_rating:true,
         },
@@ -31,6 +32,13 @@ export const creatureRouter = createTRPCRouter({
       });
       return creaturesList;
     }),
+
+  getCreaureById: publicProcedure.input(z.object({id: z.string()})).query(async ({ input, ctx }) => {
+    const creature = await ctx.db.query.creatures.findFirst({
+      where: (creature, {eq}) => eq(creature.id, input.id)
+    });
+    return creature;
+  }),
 
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";

@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { useDebounce } from "@uidotdev/usehooks";
 import { api } from "~/trpc/react";
 
-export function CreatureSearch() {
+export function CreatureSearch({
+  optionClickHandler,
+}: {
+  optionClickHandler: (creatureId: string) => void;
+}) {
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchValue = useDebounce(searchValue, 500);
   const results = api.creatures.getCreatureSearch.useQuery(
@@ -42,10 +46,11 @@ export function CreatureSearch() {
         <ul>
           {results.isLoading
             ? null
-            : results.data?.map((result, index) => (
+            : results.data?.map(result => (
                 <li
-                  key={result.name + index}
-                  className="flex justify-between px-6 py-2"
+                  key={result.id}
+                  className="flex justify-between px-6 py-2 hover:bg-slate-900 cursor-pointer transition-colors align-text-bottom"
+                  onClick={() => optionClickHandler(result.id)}
                 >
                   <span className=" text-slate-300">{result.name}</span>
                   <span className="text-sm font-light text-slate-400">

@@ -27,7 +27,7 @@ import { SideActionBar } from "~/components/SideActionBar";
 import { SideButton } from "./SideButton";
 import { CreatureSearch } from "./CreatureSearch";
 
-import { type EncounterCreature } from "~/types/encounterTypes";
+import type { EncounterCreature, Creature } from "~/types/encounterTypes";
 
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
@@ -35,14 +35,40 @@ import clsx from "clsx";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
-  const [selectedCreatureIdx, setSelectedCreatureIdx] = useState(-1);
+  const [selectedCreaturesIdx, setSelectedCreaturesIdx] = useState<number[]>([]);
   const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
   const [editNameIdx, setEditNameIdx] = useState(-1);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
-  const results = api.creatures.getDummyCreautures.useQuery(
+  const [addedCreatureId, setAddedCreatureId] = useState("");
+
+  const [isCmdOrCtrlPressed, setIsCmdOrCtrlPressed] = useState(false);
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.metaKey || event.ctrlKey) {
+      setIsCmdOrCtrlPressed(true);
+    }
+  };
+
+  const handleKeyUp = (event: KeyboardEvent) => {
+    if (!event.metaKey && !event.ctrlKey) {
+      setIsCmdOrCtrlPressed(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  const dummyCreatures = api.creatures.getDummyCreatures.useQuery(
     {
       count: 10,
     },
@@ -54,20 +80,20 @@ export function HomeView() {
     },
   );
 
+  const addedCreature = api.creatures.getCreaureById.useQuery(
+    { id: addedCreatureId },
+    {
+      enabled: addedCreatureId.length > 0,
+    },
+  );
+
   useEffect(() => {
-    if (!results.isLoading && results.data) {
+    if (!dummyCreatures.isLoading && dummyCreatures.data) {
       setCreaturesList(
-        results.data.map((creature) => ({
-          ...creature,
-          initiative: 0,
-          current_hp: creature.hit_points ?? 0,
-          tags: [],
-          isPlayer: false,
-          current_conditions: [],
-        })),
+        dummyCreatures.data.map((creature) => (buildEncounterCreature(creature))),
       );
     }
-  }, [results.isLoading, results.data]);
+  }, [dummyCreatures.isLoading, dummyCreatures.data]);
   const sidebarActions = [
     {
       handler: () => {
@@ -106,8 +132,8 @@ export function HomeView() {
     },
     {
       handler: () => {
-        if (selectedCreatureIdx !== -1) {
-          setEditNameIdx(selectedCreatureIdx);
+        if (selectedCreaturesIdx.length > 0) {
+          setEditNameIdx(selectedCreaturesIdx[selectedCreaturesIdx.length - 1] ?? -1);
         }
       },
       icon: <CursorTextIcon />,
@@ -157,6 +183,34 @@ export function HomeView() {
     },
   ];
 
+  const buildEncounterCreature = (creature: Creature) => {
+    return {
+      ...creature,
+      initiative: 0,
+      current_hp: creature.hit_points ?? 0,
+      tags: [],
+      isPlayer: false,
+      current_conditions: [],
+    };
+  };
+
+  const handleClickSearchOption = (creatureId: string) => {
+    setAddedCreatureId(creatureId);
+  };
+
+  useEffect(() => {
+    if (
+      !addedCreature.isError &&
+      !addedCreature.isLoading &&
+      addedCreature.data
+    ) {
+      setCreaturesList((prev) => [
+        ...prev,
+        buildEncounterCreature(addedCreature.data as Creature),
+      ]);
+    }
+  }, [addedCreature.data, addedCreature.isLoading, addedCreature.isError]);
+
   return (
     <div className="flex h-full">
       <div
@@ -195,7 +249,9 @@ export function HomeView() {
 
                     <div className="flex-1 overflow-auto px-1">
                       <div className="space-y-2 py-4">
-                        <CreatureSearch />
+                        <CreatureSearch
+                          optionClickHandler={handleClickSearchOption}
+                        />
                       </div>
                     </div>
                   </div>
@@ -210,8 +266,9 @@ export function HomeView() {
                 currentTurnIdx={currentTurnIdx}
                 editNameIdx={editNameIdx}
                 setEditNameIdx={setEditNameIdx}
-                selectedCreatureIdx={selectedCreatureIdx}
-                setSelectedCreatureIdx={setSelectedCreatureIdx}
+                selectedCreaturesIdx={selectedCreaturesIdx}
+                setSelectedCreaturesIdx={setSelectedCreaturesIdx}
+                isCmdOrCtrlPressed={isCmdOrCtrlPressed}                
               />
             </ResizablePanel>
             {showRightPanel && (
@@ -219,7 +276,7 @@ export function HomeView() {
                 <ResizableHandle />
                 <ResizablePanel defaultSize={20}>
                   <div className="flex h-full flex-col border-l">
-                  <div className="flex justify-between border-b">
+                    <div className="flex justify-between border-b">
                       <SideButton
                         onClick={() => setShowRightPanel((prev) => !prev)}
                         className="hover:bg-slate-full h-full w-[36px] rounded-none border-none hover:text-slate-600"

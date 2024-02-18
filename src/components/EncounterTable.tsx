@@ -12,6 +12,9 @@ import { Input } from "@/components/ui/input";
 import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
+import clsx from "clsx";
+import { set } from "zod";
+import { is } from "drizzle-orm";
 
 export function EncounterTable({
   creaturesList,
@@ -19,16 +22,18 @@ export function EncounterTable({
   currentTurnIdx,
   editNameIdx,
   setEditNameIdx,
-  selectedCreatureIdx,
-  setSelectedCreatureIdx,
+  selectedCreaturesIdx,
+  setSelectedCreaturesIdx,
+  isCmdOrCtrlPressed,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
   currentTurnIdx: number;
   editNameIdx: number;
   setEditNameIdx: React.Dispatch<React.SetStateAction<number>>;
-  selectedCreatureIdx: number;
-  setSelectedCreatureIdx: React.Dispatch<React.SetStateAction<number>>;
+  selectedCreaturesIdx: number[];
+  setSelectedCreaturesIdx: React.Dispatch<React.SetStateAction<number[]>>;
+  isCmdOrCtrlPressed: boolean;              
 }) {
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
@@ -36,7 +41,6 @@ export function EncounterTable({
   });
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
   const [nameBuffer, setNameBuffer] = useState("");
-
 
   const eventListener = useCallback(
     (e: KeyboardEvent) => {
@@ -54,7 +58,7 @@ export function EncounterTable({
         }
       }
     },
-    [editNameIdx, creaturesList, setCreaturesList, setEditNameIdx, nameBuffer],
+    [editNameIdx, setCreaturesList, setEditNameIdx, nameBuffer],
   );
 
   useEffect(() => {
@@ -67,7 +71,13 @@ export function EncounterTable({
         window.removeEventListener("keydown", eventListener, true);
       };
     }
-  }, [editNameIdx, creaturesList, setCreaturesList, setEditNameIdx]);
+  }, [
+    editNameIdx,
+    creaturesList,
+    setCreaturesList,
+    setEditNameIdx,
+    eventListener,
+  ]);
 
   const handleApplyDamage = (creatureId: string) => () => {
     console.log("apply damage to creature", creatureId);
@@ -146,6 +156,15 @@ export function EncounterTable({
     setEditNameIdx(-1);
   };
 
+  const handleSelect = (idx: number) =>  {
+    setSelectedCreaturesIdx(prev => {
+      if (isCmdOrCtrlPressed) {
+        return [...prev, idx];
+      } else {
+        return [idx];
+      }
+    });
+  }
   return (
     <ScrollArea className="h-full">
       <Table>
@@ -174,25 +193,25 @@ export function EncounterTable({
               >
                 <TableRow
                   draggable
-                  onClick={() => setSelectedCreatureIdx(index)}
+                  onClick={() => handleSelect(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragLeave={(e) => handleDragOff(e)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
-                  className={`box-border border-2 border-transparent ${
+                  className={clsx([
+                    "box-border border-2 border-transparent",
                     currentTurnIdx === index
                       ? "border-slate-500 bg-slate-900"
-                      : ""
-                  } ${
-                    currentTurnIdx - 1 === index ? "border-b-slate-500" : ""
-                  } ${
+                      : "",
+                    currentTurnIdx - 1 === index ? "border-b-slate-500" : "",
                     draggedOver.idx === index && draggedOver.direction === "up"
                       ? "border-t-4 border-t-slate-500"
                       : draggedOver.idx === index &&
                           draggedOver.direction === "down"
                         ? "border-b-4 border-b-slate-500"
-                        : ""
-                  } ${selectedCreatureIdx === index ? "bg-slate-800" : ""}`}
+                        : "",
+                    selectedCreaturesIdx.includes(index) ? "bg-slate-800 hover:bg-slate-800" : "",
+                  ])}
                 >
                   <TableCell
                     className="font-medium"
