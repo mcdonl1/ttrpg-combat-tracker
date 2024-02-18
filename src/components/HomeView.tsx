@@ -32,7 +32,6 @@ import type { EncounterCreature, Creature } from "~/types/encounterTypes";
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import clsx from "clsx";
-import { set } from "zod";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);

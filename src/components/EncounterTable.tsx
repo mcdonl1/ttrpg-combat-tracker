@@ -13,8 +13,6 @@ import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
-import { set } from "zod";
-import { is } from "drizzle-orm";
 
 export function EncounterTable({
   creaturesList,
