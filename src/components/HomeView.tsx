@@ -31,6 +31,7 @@ import { type EncounterCreature } from "~/types/encounterTypes";
 
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
+import clsx from "clsx";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -40,7 +41,7 @@ export function HomeView() {
   const [encounterStarted, setEncounterStarted] = useState(false);
   const [editNameIdx, setEditNameIdx] = useState(-1);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(true);
   const results = api.creatures.getDummyCreautures.useQuery(
     {
       count: 10,
@@ -158,9 +159,20 @@ export function HomeView() {
 
   return (
     <div className="flex h-full">
-      <div className={`${expandSidebar ? "" : "w-[36px]"}`}>
+      <div
+        className={clsx([
+          "flex flex-col bg-slate-900",
+          expandSidebar ? "w-[12rem]" : "w-[36px]",
+        ])}
+      >
         <SideActionBar actions={sidebarActions} expanded={expandSidebar} />
-        <SideButton onClick={() => setExpandSidebar((prev) => !prev)}>
+        <SideButton
+          onClick={() => setExpandSidebar((prev) => !prev)}
+          expanded={expandSidebar}
+          displayText="Collapse"
+          title={expandSidebar ? "Collapse" : "Expand"}
+          className="hover:bg-slate-full flex justify-between rounded-none border-none bg-inherit hover:text-slate-600"
+        >
           {expandSidebar ? <PinLeftIcon /> : <PinRightIcon />}
         </SideButton>
       </div>
@@ -171,7 +183,16 @@ export function HomeView() {
               <>
                 <ResizablePanel defaultSize={20}>
                   <div className="flex h-full flex-col border-r">
-                    <h4 className="border-b px-6 py-2">Library</h4>
+                    <div className="flex justify-between border-b">
+                      <h4 className="px-6 py-2">Library</h4>
+                      <SideButton
+                        onClick={() => setShowLeftPanel((prev) => !prev)}
+                        className="hover:bg-slate-full h-full w-[36px] rounded-none border-none hover:text-slate-600"
+                      >
+                        <PinLeftIcon />
+                      </SideButton>
+                    </div>
+
                     <div className="flex-1 overflow-auto px-1">
                       <div className="space-y-2 py-4">
                         <CreatureSearch />
@@ -198,7 +219,15 @@ export function HomeView() {
                 <ResizableHandle />
                 <ResizablePanel defaultSize={20}>
                   <div className="flex h-full flex-col border-l">
-                    <h4 className="border-b px-6 py-2">Right Panel</h4>
+                  <div className="flex justify-between border-b">
+                      <SideButton
+                        onClick={() => setShowRightPanel((prev) => !prev)}
+                        className="hover:bg-slate-full h-full w-[36px] rounded-none border-none hover:text-slate-600"
+                      >
+                        <PinRightIcon />
+                      </SideButton>
+                      <h4 className="px-6 py-2">Right Panel</h4>
+                    </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">Some content</div>
                     </div>

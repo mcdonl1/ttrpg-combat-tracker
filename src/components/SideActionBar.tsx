@@ -12,13 +12,15 @@ export const SideActionBar = ({
   expanded: boolean;
 }) => {
   return (
-    <div className="flex h-full flex-col bg-slate-900">
+    <div className="flex h-full flex-col">
       {actions.map((action) => {
         return (
           <SideButton
             key={action.tooltip}
             onClick={action.handler}
             title={action.tooltip}
+            displayText={action.tooltip}
+            expanded={expanded}
           >
             {action.icon}
           </SideButton>
