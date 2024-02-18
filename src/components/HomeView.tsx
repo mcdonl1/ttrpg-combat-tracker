@@ -34,25 +34,39 @@ import { api } from "~/trpc/react";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
+  const [selectedCreatureIdx, setSelectedCreatureIdx] = useState(-1);
   const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
-  const results = api.creatures.getDummyCreautures.useQuery({
-    count: 10,
-  });
+  const [editNameIdx, setEditNameIdx] = useState(-1);
+  const [showLeftPanel, setShowLeftPanel] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(false);
+  const results = api.creatures.getDummyCreautures.useQuery(
+    {
+      count: 10,
+    },
+    {
+      cacheTime: 1000 * 60 * 60,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      keepPreviousData: true,
+    },
+  );
 
   useEffect(() => {
     if (!results.isLoading && results.data) {
-      setCreaturesList(results.data.map((creature) => ({
-        ...creature,
-        initiative: 0,
-        current_hp: creature.hit_points ?? 0,
-        tags: [],
-        isPlayer: false,
-        current_conditions: [],
-      })));
+      setCreaturesList(
+        results.data.map((creature) => ({
+          ...creature,
+          initiative: 0,
+          current_hp: creature.hit_points ?? 0,
+          tags: [],
+          isPlayer: false,
+          current_conditions: [],
+        })),
+      );
     }
-  }, [results.isLoading, results.data])
+  }, [results.isLoading, results.data]);
   const sidebarActions = [
     {
       handler: () => {
@@ -91,7 +105,9 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("edit name");
+        if (selectedCreatureIdx !== -1) {
+          setEditNameIdx(selectedCreatureIdx);
+        }
       },
       icon: <CursorTextIcon />,
       tooltip: "Edit Name",
@@ -139,7 +155,7 @@ export function HomeView() {
       tooltip: "Edit Settings",
     },
   ];
-  console.log("creaturesList", creaturesList);
+
   return (
     <div className="flex h-full">
       <div className={`${expandSidebar ? "" : "w-[36px]"}`}>
@@ -151,33 +167,45 @@ export function HomeView() {
       <ResizablePanelGroup className="h-full" direction="horizontal">
         <ResizablePanel defaultSize={95}>
           <ResizablePanelGroup className="h-full" direction="horizontal">
-            <ResizablePanel defaultSize={20}>
-              <div className="flex h-full flex-col border-r p-2">
-                <h4 className="border-b px-6 py-4">Library</h4>
-                <div className="flex-1 overflow-auto">
-                  <div className="space-y-2 py-4">
-                    <CreatureSearch />
+            {showLeftPanel && (
+              <>
+                <ResizablePanel defaultSize={20}>
+                  <div className="flex h-full flex-col border-r">
+                    <h4 className="border-b px-6 py-2">Library</h4>
+                    <div className="flex-1 overflow-auto px-1">
+                      <div className="space-y-2 py-4">
+                        <CreatureSearch />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle />
+                </ResizablePanel>
+                <ResizableHandle />
+              </>
+            )}
             <ResizablePanel defaultSize={60}>
               <EncounterTable
                 creaturesList={creaturesList}
                 setCreaturesList={setCreaturesList}
                 currentTurnIdx={currentTurnIdx}
+                editNameIdx={editNameIdx}
+                setEditNameIdx={setEditNameIdx}
+                selectedCreatureIdx={selectedCreatureIdx}
+                setSelectedCreatureIdx={setSelectedCreatureIdx}
               />
             </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel defaultSize={20}>
-              <div className="flex h-full flex-col border-l">
-                <h4 className="border-b px-6 py-4">Right Panel</h4>
-                <div className="flex-1 overflow-auto">
-                  <div className="space-y-2 px-6 py-4">Some content</div>
-                </div>
-              </div>
-            </ResizablePanel>
+            {showRightPanel && (
+              <>
+                <ResizableHandle />
+                <ResizablePanel defaultSize={20}>
+                  <div className="flex h-full flex-col border-l">
+                    <h4 className="border-b px-6 py-2">Right Panel</h4>
+                    <div className="flex-1 overflow-auto">
+                      <div className="space-y-2 px-6 py-4">Some content</div>
+                    </div>
+                  </div>
+                </ResizablePanel>
+              </>
+            )}
           </ResizablePanelGroup>
         </ResizablePanel>
       </ResizablePanelGroup>

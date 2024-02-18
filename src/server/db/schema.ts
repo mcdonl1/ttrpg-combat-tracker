@@ -9,6 +9,7 @@ import {
   timestamp,
   varchar,
   json,
+  mediumtext,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -113,20 +114,23 @@ export const verificationTokens = mysqlTable(
 );
 
 export const creatures = mysqlTable("creature", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  notes: varchar("notes", { length: 255 }),
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .default(sql`(uuid())`),
+  notes: mediumtext("notes"),
   slug: varchar("slug", { length: 255 }).notNull(),
-  desc: varchar("desc", { length: 255 }),
+  desc: mediumtext("desc"),
   name: varchar("name", { length: 255 }).notNull(),
-  size: varchar("size", { length: 255 }),
-  type: varchar("type", { length: 255 }),
-  subtype: varchar("subtype", { length: 255 }),
+  size: varchar("size", { length: 50 }),
+  type: varchar("type", { length: 50 }),
+  subtype: varchar("subtype", { length: 100 }),
   group: varchar("group", { length: 255 }),
-  alignment: varchar("alignment", { length: 255 }),
+  alignment: varchar("alignment", { length: 100 }),
   armor_class: int("armor_class"),
-  armor_desc: varchar("armor_desc", { length: 255 }),
+  armor_desc: varchar("armor_desc", { length: 100 }),
   hit_points: int("hit_points"),
-  hit_dice: varchar("hit_dice", { length: 255 }),
+  hit_dice: varchar("hit_dice", { length: 50 }),
   speed: json("speed"),
   initiative_modifier: int("initiative_modifier"),
   strength: int("strength"),
@@ -143,34 +147,30 @@ export const creatures = mysqlTable("creature", {
   charisma_save: int("charisma_save"),
   perception: int("perception"),
   skills: json("skills"),
-  damage_vulnerabilities: varchar("damage_vulnerabilities", {
-    length: 255,
-  }),
-  damage_resistances: varchar("damage_resistances", { length: 255 }),
-  damage_immunities: varchar("damage_immunities", { length: 255 }),
-  condition_immunities: varchar("condition_immunities", {
-    length: 255,
-  }),
-  senses: varchar("senses", { length: 255 }),
-  languages: varchar("languages", { length: 255 }),
+  damage_vulnerabilities: mediumtext("damage_vulnerabilities"),
+  damage_resistances: mediumtext("damage_resistances"),
+  damage_immunities: mediumtext("damage_immunities"),
+  condition_immunities: mediumtext("condition_immunities"),
+  senses: varchar("senses", { length: 510 }),
+  languages: varchar("languages", { length: 510 }),
   challenge_rating: varchar("challenge_rating", { length: 255 }),
   cr: int("cr"),
   actions: json("actions"),
   bonus_actions: json("bonus_actions"),
   reactions: json("reactions"),
-  legendary_desc: varchar("legendary_desc", { length: 255 }),
+  legendary_desc: mediumtext("legendary_desc"),
   legendary_actions: json("legendary_actions"),
   special_abilities: json("special_abilities"),
   spell_list: json("spell_list"),
   page_no: int("page_no"),
   environments: json("environments"),
-  img_main: varchar("img_main", { length: 255 }),
+  img_main: varchar("img_main", { length: 500 }),
   document__slug: varchar("document__slug", { length: 255 }),
   document__title: varchar("document__title", { length: 255 }),
   document__license_url: varchar("document__license_url", {
-    length: 255,
+    length: 510,
   }),
-  document__url: varchar("document__url", { length: 255 }),
+  document__url: varchar("document__url", { length: 510 }),
   userId: varchar("userId", { length: 255 }),
 });
 

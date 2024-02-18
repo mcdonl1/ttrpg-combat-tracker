@@ -7,9 +7,10 @@
     "build": "next build",
     "db:push": "drizzle-kit push:mysql",
     "db:studio": "drizzle-kit studio",
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "db-seed-creatures": "tsx ./src/scripts/db.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.6",
@@ -27,6 +28,7 @@
     "@trpc/next": "^10.43.6",
     "@trpc/react-query": "^10.43.6",
     "@trpc/server": "^10.43.6",
+    "@uidotdev/usehooks": "^2.4.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.29.3",
@@ -51,7 +53,7 @@
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "autoprefixer": "^10.4.14",
-    "drizzle-kit": "^0.20.9",
+    "drizzle-kit": "^0.20.14",
     "eslint": "^8.54.0",
     "eslint-config-next": "^14.0.4",
     "mysql2": "^3.6.1",
@@ -59,6 +61,7 @@
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
     "tailwindcss": "^3.3.5",
+    "tsx": "^4.7.1",
     "typescript": "^5.1.6"
   },
   "ct3aMetadata": {

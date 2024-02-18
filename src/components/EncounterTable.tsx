@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
@@ -16,16 +17,57 @@ export function EncounterTable({
   creaturesList,
   setCreaturesList,
   currentTurnIdx,
+  editNameIdx,
+  setEditNameIdx,
+  selectedCreatureIdx,
+  setSelectedCreatureIdx,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
   currentTurnIdx: number;
+  editNameIdx: number;
+  setEditNameIdx: React.Dispatch<React.SetStateAction<number>>;
+  selectedCreatureIdx: number;
+  setSelectedCreatureIdx: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
     direction: "none",
   });
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
+  const [nameBuffer, setNameBuffer] = useState("");
+
+
+  const eventListener = useCallback(
+    (e: KeyboardEvent) => {
+      if (editNameIdx !== -1) {
+        if (e.key === "Escape") {
+          setEditNameIdx(-1);
+        }
+        if (e.key === "Enter") {
+          setCreaturesList((prevList) => {
+            const newList = [...prevList];
+            newList[editNameIdx]!.name = nameBuffer;
+            return newList;
+          });
+          setEditNameIdx(-1);
+        }
+      }
+    },
+    [editNameIdx, creaturesList, setCreaturesList, setEditNameIdx, nameBuffer],
+  );
+
+  useEffect(() => {
+    if (editNameIdx !== -1) {
+      setNameBuffer(creaturesList[editNameIdx]!.name);
+      const el = document.getElementById(`name-edit-input-${editNameIdx}`);
+      el?.focus();
+      window.addEventListener("keydown", eventListener, true);
+      return () => {
+        window.removeEventListener("keydown", eventListener, true);
+      };
+    }
+  }, [editNameIdx, creaturesList, setCreaturesList, setEditNameIdx]);
 
   const handleApplyDamage = (creatureId: string) => () => {
     console.log("apply damage to creature", creatureId);
@@ -93,13 +135,24 @@ export function EncounterTable({
       return newList;
     });
   };
+
+  const handleNameEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNameBuffer(e.target.value);
+  };
+
+  const handleNameUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setEditNameIdx(-1);
+  };
+
   return (
     <ScrollArea className="h-full">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[50px]">Initiative</TableHead>
-            <TableHead className="w-[150px]">Name</TableHead>
+            <TableHead className="w-[250px]">Name</TableHead>
             <TableHead className="w-[50px]">HP</TableHead>
             <TableHead className="w-[50px]">AC</TableHead>
             <TableHead>Tags</TableHead>
@@ -121,6 +174,7 @@ export function EncounterTable({
               >
                 <TableRow
                   draggable
+                  onClick={() => setSelectedCreatureIdx(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragLeave={(e) => handleDragOff(e)}
                   onDrop={(e) => handleDrop(e, index)}
@@ -138,7 +192,7 @@ export function EncounterTable({
                           draggedOver.direction === "down"
                         ? "border-b-4 border-b-slate-500"
                         : ""
-                  }`}
+                  } ${selectedCreatureIdx === index ? "bg-slate-800" : ""}`}
                 >
                   <TableCell
                     className="font-medium"
@@ -146,7 +200,18 @@ export function EncounterTable({
                   >
                     {creature.initiative}
                   </TableCell>
-                  <TableCell className="font-medium">{creature.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {editNameIdx === index ? (
+                      <Input
+                        id={`name-edit-input-${index}`}
+                        value={nameBuffer}
+                        onChange={handleNameEdit}
+                        onBlur={() => setEditNameIdx(-1)}
+                      ></Input>
+                    ) : (
+                      creature.name
+                    )}
+                  </TableCell>
                   <TableCell onClick={handleApplyDamage(creature.id)}>
                     {creature.current_hp}/{creature.hit_points}
                   </TableCell>
