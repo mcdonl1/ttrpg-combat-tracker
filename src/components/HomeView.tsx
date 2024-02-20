@@ -20,7 +20,7 @@ import {
   PinRightIcon,
   PlayIcon,
 } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { EncounterTable } from "~/components/EncounterTable";
 import { SideActionBar } from "~/components/SideActionBar";
@@ -41,7 +41,10 @@ export function HomeView() {
   const [creaturesList, setCreaturesList] = useState<EncounterCreature[]>([]);
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [encounterStarted, setEncounterStarted] = useState(false);
+
   const [editNameId, setEditNameId] = useState("");
+  const [editInitativeId, setEditInitiativeId] = useState("");
+
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [addedCreatureId, setAddedCreatureId] = useState("");
@@ -51,33 +54,57 @@ export function HomeView() {
   const [isCmdOrCtrlPressed, setIsCmdOrCtrlPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.metaKey || event.ctrlKey) {
-      setIsCmdOrCtrlPressed(true);
-    }
-    if (event.shiftKey) {
-      setIsShiftPressed(true);
-    }
-  };
-
-  const handleKeyUp = (event: KeyboardEvent) => {
-    if (event.metaKey && event.ctrlKey) {
-      setIsCmdOrCtrlPressed(false);
-    }
-    if (event.shiftKey) {
-      setIsShiftPressed(false);
-    }
-  };
-
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey) {
+        setIsCmdOrCtrlPressed(true);
+        if (event.key == "i" && selectedCreaturesIds.length > 0) {
+          console.log(selectedCreaturesIds[selectedCreaturesIds.length - 1]!);
+          setEditInitiativeId(
+            selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+          );
+          setSelectedCreaturesIds([
+            selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+          ]);
+          console.log("initiative edit");
+        }
+        console.log(
+          "cmd or ctrl pressed, key: ",
+          event.key,
+          "selectedCreaturesIds: ",
+          selectedCreaturesIds,
+        );
+      }
+      if (event.shiftKey) {
+        setIsShiftPressed(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!event.metaKey && !event.ctrlKey) {
+        setIsCmdOrCtrlPressed(false);
+        console.log("cmd or ctrl released");
+      }
+      if (!event.shiftKey) {
+        setIsShiftPressed(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      // Reset the modifier keys when the window loses focus
+      setIsCmdOrCtrlPressed(false);
+      setIsShiftPressed(false);
+    };
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleWindowBlur);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleWindowBlur);
     };
-  }, []);
+  }, [selectedCreaturesIds]);
 
   const dummyCreatures = api.creatures.getDummyCreatures.useQuery(
     {
@@ -142,11 +169,14 @@ export function HomeView() {
       tooltip: encounterStarted ? "End Encounter" : "Start Encounter",
     },
     {
-      handler: () => {
+      handler: useCallback(() => {
         if (selectedCreaturesIds.length > 0) {
           setEditNameId(selectedCreaturesIds[selectedCreaturesIds.length - 1]!);
+          setSelectedCreaturesIds([
+            selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+          ]);
         }
-      },
+      }, [setEditNameId, selectedCreaturesIds, setSelectedCreaturesIds]),
       icon: <CursorTextIcon />,
       tooltip: "Edit Name",
     },
@@ -204,7 +234,6 @@ export function HomeView() {
             ),
           );
         }
-        
       },
       icon: <TrashIcon />,
       tooltip: "Remove",
@@ -266,8 +295,10 @@ export function HomeView() {
           expanded={expandSidebar}
           displayText="Collapse"
           title={expandSidebar ? "Collapse" : "Expand"}
-          className={clsx(["hover:bg-slate-full flex rounded-none border-none bg-inherit hover:text-slate-600",
-            expandSidebar ? "justify-between" : "justify-center"])}
+          className={clsx([
+            "hover:bg-slate-full flex rounded-none border-none bg-inherit hover:text-slate-600",
+            expandSidebar ? "justify-between" : "justify-center",
+          ])}
         >
           {expandSidebar ? <PinLeftIcon /> : <PinRightIcon />}
         </SideButton>
@@ -310,6 +341,8 @@ export function HomeView() {
                 currentTurnIdx={currentTurnIdx}
                 editNameId={editNameId}
                 setEditNameId={setEditNameId}
+                editInitativeId={editInitativeId}
+                setEditInitiativeId={setEditInitiativeId}
                 selectedCreaturesIds={selectedCreaturesIds}
                 setSelectedCreaturesIds={setSelectedCreaturesIds}
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}
@@ -332,22 +365,28 @@ export function HomeView() {
                     </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">
-                        {selectedCreaturesIds.length > 0
-                          ? Object.entries(
-                              creaturesList.find(
-                                (creature) =>
-                                  creature.id ===
-                                  selectedCreaturesIds[
-                                    selectedCreaturesIds.length - 1
-                                  ],
-                              )!,
-                            ).map(([key, value]) => (
-                              <div key={key} className="border-b pb-3">
-                                <p className="text-slate-500">{key.charAt(0).toUpperCase() + key.slice(1)}</p>
-                                <p>{JSON.stringify(value, null, 2)}</p>
-                              </div>
-                            ))
-                          : <span className="text-slate-600 font-light">Select a creature to view its information here</span>}
+                        {selectedCreaturesIds.length > 0 ? (
+                          Object.entries(
+                            creaturesList.find(
+                              (creature) =>
+                                creature.id ===
+                                selectedCreaturesIds[
+                                  selectedCreaturesIds.length - 1
+                                ],
+                            )!,
+                          ).map(([key, value]) => (
+                            <div key={key} className="border-b pb-3">
+                              <p className="text-slate-500">
+                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                              </p>
+                              <p>{JSON.stringify(value, null, 2)}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="font-light text-slate-600">
+                            Select a creature to view its information here
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

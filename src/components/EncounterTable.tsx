@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,11 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
+import { EditableField } from "./EditableField";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
+import { set } from "zod";
 
 export function EncounterTable({
   creaturesList,
@@ -20,6 +21,8 @@ export function EncounterTable({
   currentTurnIdx,
   editNameId,
   setEditNameId,
+  editInitativeId,
+  setEditInitiativeId,
   selectedCreaturesIds,
   setSelectedCreaturesIds,
   isCmdOrCtrlPressed,
@@ -30,6 +33,8 @@ export function EncounterTable({
   currentTurnIdx: number;
   editNameId: string;
   setEditNameId: React.Dispatch<React.SetStateAction<string>>;
+  editInitativeId: string;
+  setEditInitiativeId: React.Dispatch<React.SetStateAction<string>>;
   selectedCreaturesIds: string[];
   setSelectedCreaturesIds: React.Dispatch<React.SetStateAction<string[]>>;
   isCmdOrCtrlPressed: boolean;
@@ -40,58 +45,42 @@ export function EncounterTable({
     direction: "none",
   });
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
-  const [nameBuffer, setNameBuffer] = useState("");
-
-  const eventListener = useCallback(
-    (e: KeyboardEvent) => {
-      if (editNameId.length > 0) {
-        if (e.key === "Escape") {
-          setEditNameId("");
-        }
-        if (e.key === "Enter") {
-          setCreaturesList((prevList) => {
-            const newList = [...prevList];
-            newList.find((creature) => creature.id === editNameId)!.name =
-              nameBuffer;
-            return newList;
-          });
-          setEditNameId("");
-        }
-      }
-    },
-    [editNameId, setCreaturesList, setEditNameId, nameBuffer],
-  );
-
-  useEffect(() => {
-    if (editNameId.length > 0) {
-      setNameBuffer(
-        creaturesList.find((creature) => creature.id === editNameId)!.name,
-      );
-      const el = document.getElementById(`name-edit-input-${editNameId}`);
-      el?.focus();
-      window.addEventListener("keydown", eventListener, true);
-      return () => {
-        window.removeEventListener("keydown", eventListener, true);
-      };
-    }
-  }, [
-    editNameId,
-    creaturesList,
-    setCreaturesList,
-    setEditNameId,
-    eventListener,
-  ]);
 
   const handleApplyDamage = (creatureId: string) => () => {
     console.log("apply damage to creature", creatureId);
   };
+
+  useEffect(() => {
+    const keyListener = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && editNameId === "" && editInitativeId === "") {
+        setSelectedCreaturesIds([]);
+      }
+
+      if ((e.key === "Delete" || e.key === "Backspace") && editNameId === "" && editInitativeId === "") {
+        setCreaturesList((prevList) =>
+          prevList.filter(
+            (creature) => !selectedCreaturesIds.includes(creature.id),
+          ),
+        );
+        setSelectedCreaturesIds([]);
+      }
+    }
+    if (selectedCreaturesIds.length > 0) {
+      window.addEventListener("keydown", keyListener);
+    } else {
+      window.removeEventListener("keydown", keyListener);
+    }
+    return () => {
+      window.removeEventListener("keydown", keyListener);
+    };
+  }, [selectedCreaturesIds, setCreaturesList, setSelectedCreaturesIds, editNameId, editInitativeId])
 
   const handleModifyStatblock = (creatureId: string) => () => {
     console.log("modify statblock for creature", creatureId);
   };
 
   const handleModifyInitiative = (creatureId: string) => () => {
-    console.log("modify initiative for creature", creatureId);
+    setEditInitiativeId(creatureId);
   };
 
   const handleAddTag = (creatureId: string) => () => {
@@ -149,16 +138,6 @@ export function EncounterTable({
     });
   };
 
-  const handleNameEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNameBuffer(e.target.value);
-  };
-
-  const handleNameUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setEditNameId("");
-  };
-
   const handleSelect = (id: string) => {
     setSelectedCreaturesIds((prev) => {
       if (isCmdOrCtrlPressed) {
@@ -176,9 +155,7 @@ export function EncounterTable({
         );
         const min = Math.min(firstSelectedIdx, currentIdx);
         const max = Math.max(firstSelectedIdx, currentIdx);
-        return creaturesList
-          .slice(min, max + 1)
-          .map((creature) => creature.id);
+        return creaturesList.slice(min, max + 1).map((creature) => creature.id);
       } else {
         return [id];
       }
@@ -236,21 +213,30 @@ export function EncounterTable({
                 >
                   <TableCell
                     className="font-medium"
-                    onClick={handleModifyInitiative(creature.id)}
+                    onDoubleClick={() => setEditInitiativeId(creature.id)}
                   >
-                    {creature.initiative}
+                    <EditableField 
+                      className="w-full"
+                      initialValue={creature.initiative.toString()}
+                      isEditing={editInitativeId === creature.id}
+                      cancelEdit={() => setEditInitiativeId("")}
+                      onCommit={(value) => {
+                        setCreaturesList((prevList) => {
+                          const newCreature = { ...creature, initiative: parseInt(value) };
+                          const idx = prevList.findIndex((c) => c.id === creature.id);
+                          prevList[idx] = newCreature;
+                          return prevList;
+                        });
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="font-medium">
-                    {editNameId === creature.id ? (
-                      <Input
-                        id={`name-edit-input-${index}`}
-                        value={nameBuffer}
-                        onChange={handleNameEdit}
-                        onBlur={() => setEditNameId("")}
-                      ></Input>
-                    ) : (
-                      creature.name
-                    )}
+                    <EditableField
+                      className="w-full"
+                      initialValue={creature.name}
+                      isEditing={editNameId === creature.id}
+                      cancelEdit={() => setEditNameId("")}
+                    />
                   </TableCell>
                   <TableCell onClick={handleApplyDamage(creature.id)}>
                     {creature.current_hp}/{creature.hit_points}
