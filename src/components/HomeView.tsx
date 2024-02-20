@@ -58,22 +58,21 @@ export function HomeView() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey) {
         setIsCmdOrCtrlPressed(true);
-        if (event.key == "i" && selectedCreaturesIds.length > 0) {
-          console.log(selectedCreaturesIds[selectedCreaturesIds.length - 1]!);
-          setEditInitiativeId(
-            selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
-          );
-          setSelectedCreaturesIds([
-            selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
-          ]);
-          console.log("initiative edit");
+        if (selectedCreaturesIds.length > 0) {
+          if (event.key == "i") {
+            setEditInitiativeId(
+              selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+            );
+            setSelectedCreaturesIds([
+              selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+            ]);
+          } else if (event.key == "o") {
+            setEditNameId(selectedCreaturesIds[selectedCreaturesIds.length - 1]!);
+            setSelectedCreaturesIds([
+              selectedCreaturesIds[selectedCreaturesIds.length - 1]!,
+            ]);
+          }
         }
-        console.log(
-          "cmd or ctrl pressed, key: ",
-          event.key,
-          "selectedCreaturesIds: ",
-          selectedCreaturesIds,
-        );
       }
       if (event.shiftKey) {
         setIsShiftPressed(true);

@@ -24,6 +24,7 @@ export function CreatureContextMenu({
   handleModifyInitiative,
   handleAddTag,
   handleTagChange,
+  handleEditName,
   className,
 }: {
   children?: React.ReactNode;
@@ -33,6 +34,7 @@ export function CreatureContextMenu({
   handleModifyInitiative: (creatureId: string) => () => void;
   handleAddTag: (creatureId: string) => () => void;
   handleTagChange: (e: React.FormEvent, creatureId: string) => void;
+  handleEditName: (creatureId: string) => void;
   className?: string;
 }) {
   const { id: creatureId, name } = creature;
@@ -69,7 +71,7 @@ export function CreatureContextMenu({
           </ContextMenuSubContent>
         </ContextMenuSub>
         <ContextMenuSeparator />
-        <ContextMenuItem>
+        <ContextMenuItem onClick={() => handleEditName(creatureId)}>
           Rename
           <ContextMenuShortcut>⌘O</ContextMenuShortcut>
         </ContextMenuItem>

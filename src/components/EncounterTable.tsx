@@ -13,7 +13,6 @@ import { CreatureContextMenu } from "./CreatureContextMenu";
 import { EditableField } from "./EditableField";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
-import { set } from "zod";
 
 export function EncounterTable({
   creaturesList,
@@ -186,6 +185,7 @@ export function EncounterTable({
                 handleModifyInitiative={handleModifyInitiative}
                 handleAddTag={handleAddTag}
                 handleTagChange={handleTagChange}
+                handleEditName={() => setEditNameId(creature.id)}
               >
                 <TableRow
                   draggable
@@ -230,7 +230,10 @@ export function EncounterTable({
                       }}
                     />
                   </TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell
+                    className="font-medium"
+                    onDoubleClick={() => setEditNameId(creature.id)}
+                  >
                     <EditableField
                       className="w-full"
                       initialValue={creature.name}
