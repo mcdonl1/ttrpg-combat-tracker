@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { EncounterList } from "~/types/encounterTypes";
+import type { EncounterCreature, EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { EditableField } from "./EditableField";
 import { HpCell } from "./hpCell";
@@ -47,18 +47,22 @@ export function EncounterTable({
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
 
   const handleApplyDamage = (creatureId: string, amount: number) => {
-    console.log("apply damage to creature", creatureId, amount);
     setCreaturesList((prevList) => {
-      const creature = prevList.find((c) => c.id === creatureId);
-      if (!creature) {
+      const idx = prevList.findIndex((c) => c.id === creatureId);
+      if (idx === -1 || prevList[idx] === undefined) {
         return prevList;
       }
-      const newCreature = { ...creature, current_hp: creature.current_hp - amount };
-      const idx = prevList.findIndex((c) => c.id === creatureId);
-      prevList[idx] = newCreature;
-      return prevList;
+  
+      // Create a new copy of the creature object
+      const updatedCreature = { ...prevList[idx] };
+      updatedCreature.current_hp = Math.max(updatedCreature.current_hp! - amount, 0);
+  
+      // Create a new copy of the creatures list
+      const updatedList = [...prevList];
+      updatedList[idx] = updatedCreature as EncounterCreature;
+  
+      return updatedList;
     });
-    
   };
 
   useEffect(() => {

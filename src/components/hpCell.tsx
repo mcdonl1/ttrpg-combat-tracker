@@ -7,26 +7,28 @@ import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 
 function HpPopoverContent({
-  onEnter,
+  applyDamage,
 }: {
-  onEnter: (amount: number) => void;
+  applyDamage: (amount: number) => void;
 }) {
   const [inputVal, setInputVal] = useState<string>("");
   return (
     <PopoverContent>
       <div>Apply Damage</div>
-      <Input
-        type="number"
-        value={inputVal ?? ""}
-        onChange={(e) => setInputVal(e.target.value)}
-        className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            if (isNaN(parseInt(inputVal ?? ""))) return;
-            onEnter(parseInt(inputVal ?? 0));
-          }
-        }}
-      />
+      <form id="apply-damage-form" onSubmit={(e) => {
+        e.preventDefault();
+        if (isNaN(parseInt(inputVal ?? ""))) return;
+          applyDamage(parseInt(inputVal ?? 0));
+      }}>
+        <Input
+          type="number"
+          form="apply-damage-form"
+          value={inputVal ?? ""}
+          onChange={(e) => setInputVal(e.target.value)}
+          className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      </form>
+      
     </PopoverContent>
   );
 }
@@ -48,8 +50,8 @@ export function HpCell({
         {currentHp}/{maxHp}
       </PopoverTrigger>
       <HpPopoverContent
-        onEnter={(amount) => {
-          isOpen && applyDamage(amount);
+        applyDamage={(amount) => {
+          applyDamage(amount);
           setIsOpen(false);
           window.focus();
         }}
