@@ -244,6 +244,7 @@ export function EncounterTable({
                           return prevList;
                         });
                       }}
+                      formId={creature.id}
                     />
                   </TableCell>
                   <TableCell
@@ -255,6 +256,7 @@ export function EncounterTable({
                       initialValue={creature.name}
                       isEditing={editNameId === creature.id}
                       cancelEdit={() => setEditNameId("")}
+                      formId={creature.id}
                     />
                   </TableCell>
                   <TableCell>

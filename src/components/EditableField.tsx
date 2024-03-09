@@ -8,12 +8,14 @@ export function EditableField({
   isEditing,
   cancelEdit,
   onCommit,
+  formId,
 }: {
   className: string;
   initialValue: string;
   isEditing: boolean;
   cancelEdit?: () => void;
   onCommit?: (value: string) => void;
+  formId: string;
 }) {
   const [value, setValue] = useState(initialValue);
   const [commitedValue, setCommitedValue] = useState(initialValue);
@@ -24,11 +26,6 @@ export function EditableField({
       if (e.key === "Escape") {
         setValue(commitedValue);
         cancelEdit && cancelEdit();
-      }
-      if (e.key === "Enter") {
-        setCommitedValue(value);
-        cancelEdit && cancelEdit();
-        onCommit && onCommit(value);
       }
     };
     if (isEditing) {
@@ -46,16 +43,24 @@ export function EditableField({
   return (
     <div>
       {isEditing ? (
-        <Input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={() => {
-            setValue(commitedValue);
-            cancelEdit && cancelEdit();
-          }}
-          className={clsx(["bg-slate-900 px-2 py-0 h-5 rounded-[1.5px]", className])}
-          ref={inputRef}
-        />
+        <form id={formId} onSubmit={(e) => {
+          e.preventDefault();
+          setCommitedValue(value);
+          cancelEdit && cancelEdit();
+          onCommit && onCommit(value);
+        }}>
+          <Input
+            value={value}
+            form={formId}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={() => {
+              setValue(commitedValue);
+              cancelEdit && cancelEdit();
+            }}
+            className={clsx(["bg-slate-900 px-2 py-0 h-5 rounded-[1.5px]", className])}
+            ref={inputRef}
+          />
+        </form>
       ) : (
         <span>{commitedValue}</span>
       )}
