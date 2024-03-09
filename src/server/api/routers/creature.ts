@@ -15,7 +15,10 @@ export const creatureRouter = createTRPCRouter({
       const creaturesList = ctx.db.query.creatures.findMany({
         orderBy: (creatures, {sql}) => sql`RAND()`,
         limit: input.count
+      }).catch((err) => {
+        console.log(err);
       });
+      console.log(creaturesList)
       return creaturesList;
     }),
   getCreatureSearch: publicProcedure

@@ -19,7 +19,7 @@ import type { EncounterCreature } from "~/types/encounterTypes";
 export function CreatureContextMenu({
   children,
   creature,
-  handleApplyDamage,
+  handleOpenApplyDamage,
   handleModifyStatblock,
   handleModifyInitiative,
   handleAddTag,
@@ -29,7 +29,7 @@ export function CreatureContextMenu({
 }: {
   children?: React.ReactNode;
   creature: EncounterCreature;
-  handleApplyDamage: (creatureId: string) => () => void;
+  handleOpenApplyDamage: (creatureId: string) => () => void;
   handleModifyStatblock: (creatureId: string) => () => void;
   handleModifyInitiative: (creatureId: string) => () => void;
   handleAddTag: (creatureId: string) => () => void;
@@ -45,7 +45,7 @@ export function CreatureContextMenu({
       </ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuLabel>{name}</ContextMenuLabel>
-        <ContextMenuItem onClick={handleApplyDamage(creatureId)}>
+        <ContextMenuItem onClick={handleOpenApplyDamage(creatureId)}>
           Apply Damage
           <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>

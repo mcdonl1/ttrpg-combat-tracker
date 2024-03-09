@@ -11,6 +11,7 @@ import {
 import type { EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { EditableField } from "./EditableField";
+import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
 
@@ -45,8 +46,19 @@ export function EncounterTable({
   });
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
 
-  const handleApplyDamage = (creatureId: string) => () => {
-    console.log("apply damage to creature", creatureId);
+  const handleApplyDamage = (creatureId: string, amount: number) => {
+    console.log("apply damage to creature", creatureId, amount);
+    setCreaturesList((prevList) => {
+      const creature = prevList.find((c) => c.id === creatureId);
+      if (!creature) {
+        return prevList;
+      }
+      const newCreature = { ...creature, current_hp: creature.current_hp - amount };
+      const idx = prevList.findIndex((c) => c.id === creatureId);
+      prevList[idx] = newCreature;
+      return prevList;
+    });
+    
   };
 
   useEffect(() => {
@@ -55,7 +67,7 @@ export function EncounterTable({
         setSelectedCreaturesIds([]);
       }
 
-      if ((e.key === "Delete" || e.key === "Backspace") && editNameId === "" && editInitativeId === "") {
+      if ((e.key === "Delete") && editNameId === "" && editInitativeId === "") {
         setCreaturesList((prevList) =>
           prevList.filter(
             (creature) => !selectedCreaturesIds.includes(creature.id),
@@ -160,6 +172,10 @@ export function EncounterTable({
       }
     });
   };
+
+  const handleOpenApplyDamage = (creatureId: string) => () => {
+    console.log("open apply damage for creature", creatureId);
+  }
   return (
     <ScrollArea className="h-full">
       <Table>
@@ -180,7 +196,7 @@ export function EncounterTable({
               <CreatureContextMenu
                 key={creature.id + index.toString()}
                 creature={creature}
-                handleApplyDamage={handleApplyDamage}
+                handleOpenApplyDamage={handleOpenApplyDamage}
                 handleModifyStatblock={handleModifyStatblock}
                 handleModifyInitiative={handleModifyInitiative}
                 handleAddTag={handleAddTag}
@@ -241,8 +257,14 @@ export function EncounterTable({
                       cancelEdit={() => setEditNameId("")}
                     />
                   </TableCell>
-                  <TableCell onClick={handleApplyDamage(creature.id)}>
-                    {creature.current_hp}/{creature.hit_points}
+                  <TableCell>
+                    <HpCell
+                      currentHp={creature.current_hp}
+                      maxHp={creature.hit_points ?? 0}
+                      applyDamage={(amount) => {
+                        handleApplyDamage(creature.id, amount);
+                      }}
+                    />
                   </TableCell>
                   <TableCell>{creature.armor_class}</TableCell>
                   <TableCell>{creature.tags.join(", ")}</TableCell>

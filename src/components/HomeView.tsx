@@ -82,7 +82,6 @@ export function HomeView() {
     const handleKeyUp = (event: KeyboardEvent) => {
       if (!event.metaKey && !event.ctrlKey) {
         setIsCmdOrCtrlPressed(false);
-        console.log("cmd or ctrl released");
       }
       if (!event.shiftKey) {
         setIsShiftPressed(false);
