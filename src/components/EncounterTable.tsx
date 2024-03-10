@@ -15,6 +15,8 @@ import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
 
+const defaultTagOptions = ["Frightened", "Poisoned", "Stunned", "Prone", "Invisible", "Concentrating"];
+
 export function EncounterTable({
   creaturesList,
   setCreaturesList,
@@ -98,12 +100,25 @@ export function EncounterTable({
     setEditInitiativeId(creatureId);
   };
 
-  const handleAddTag = (creatureId: string) => () => {
-    console.log("add tag to creature", creatureId);
-  };
+  const handleTagChange = (creatureId: string, tag: string) => {
+    setCreaturesList((prevList) => {
+      const idx = prevList.findIndex((c) => c.id === creatureId);
+      if (idx === -1 || prevList[idx] === undefined) {
+        return prevList;
+      }
 
-  const handleTagChange = (e: React.FormEvent, creatureId: string) => {
-    console.log("tag change", e, creatureId);
+      const updatedCreature = { ...prevList[idx] };
+      if (updatedCreature.tags!.includes(tag)) {
+        updatedCreature.tags = updatedCreature.tags!.filter((t) => t !== tag);
+      } else {
+        updatedCreature.tags = [...updatedCreature.tags!, tag];
+      }
+
+      const updatedList = [...prevList];
+      updatedList[idx] = updatedCreature as EncounterCreature;
+
+      return updatedList; 
+    })
   };
 
   function array_move<T>(arr: T[], old_index: number, new_index: number) {
@@ -203,9 +218,10 @@ export function EncounterTable({
                 handleOpenApplyDamage={handleOpenApplyDamage}
                 handleModifyStatblock={handleModifyStatblock}
                 handleModifyInitiative={handleModifyInitiative}
-                handleAddTag={handleAddTag}
+                handleAddTag={() => console.log("add tag")}
                 handleTagChange={handleTagChange}
                 handleEditName={() => setEditNameId(creature.id)}
+                tagOptions={defaultTagOptions}
               >
                 <TableRow
                   draggable
@@ -273,7 +289,7 @@ export function EncounterTable({
                     />
                   </TableCell>
                   <TableCell>{creature.armor_class}</TableCell>
-                  <TableCell>{creature.tags.join(", ")}</TableCell>
+                  <TableCell className="text-secondary">{creature.tags.join(", ")}</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </CreatureContextMenu>

@@ -5,13 +5,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuLabel,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
+  ContextMenuCheckboxItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import type { EncounterCreature } from "~/types/encounterTypes";
@@ -26,18 +22,20 @@ export function CreatureContextMenu({
   handleTagChange,
   handleEditName,
   className,
+  tagOptions,
 }: {
   children?: React.ReactNode;
   creature: EncounterCreature;
-  handleOpenApplyDamage: (creatureId: string) => () => void;
-  handleModifyStatblock: (creatureId: string) => () => void;
-  handleModifyInitiative: (creatureId: string) => () => void;
-  handleAddTag: (creatureId: string) => () => void;
-  handleTagChange: (e: React.FormEvent, creatureId: string) => void;
-  handleEditName: (creatureId: string) => void;
+  handleOpenApplyDamage: (creatureId: string) =>  void;
+  handleModifyStatblock: (creatureId: string) =>  void;
+  handleModifyInitiative: (creatureId: string) =>  void;
+  handleAddTag: () => void;
+  handleTagChange: (creatureId: string, tag: string) => void;
+  handleEditName: () => void;
   className?: string;
+  tagOptions: string[];
 }) {
-  const { id: creatureId, name } = creature;
+  const { id: creatureId, name, tags } = creature;
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild className={className}>
@@ -45,19 +43,19 @@ export function CreatureContextMenu({
       </ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuLabel>{name}</ContextMenuLabel>
-        <ContextMenuItem onClick={handleOpenApplyDamage(creatureId)}>
+        <ContextMenuItem onClick={() => handleOpenApplyDamage(creatureId)}>
           Apply Damage
           <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handleModifyStatblock(creatureId)}>
+        <ContextMenuItem onClick={() => handleModifyStatblock(creatureId)}>
           Modify Statblock
           <ContextMenuShortcut>⌘M</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handleModifyInitiative(creatureId)}>
+        <ContextMenuItem onClick={() => handleModifyInitiative(creatureId)}>
           Modify Initiative
           <ContextMenuShortcut>⌘I</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuSub>
+        {/* <ContextMenuSub>
           <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
             <ContextMenuItem>
@@ -69,27 +67,31 @@ export function CreatureContextMenu({
             <ContextMenuSeparator />
             <ContextMenuItem>Developer Tools</ContextMenuItem>
           </ContextMenuSubContent>
-        </ContextMenuSub>
+        </ContextMenuSub> */}
         <ContextMenuSeparator />
-        <ContextMenuItem onClick={() => handleEditName(creatureId)}>
+        <ContextMenuItem onClick={() => handleEditName()}>
           Rename
           <ContextMenuShortcut>⌘O</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handleAddTag(creatureId)}>
+        <ContextMenuItem onClick={handleAddTag}>
           Add Tag
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuRadioGroup
-          value="tags"
-          onChange={(e) => handleTagChange(e, creatureId)}
-        >
-          <ContextMenuLabel>Tags</ContextMenuLabel>
-          <ContextMenuSeparator />
-          <ContextMenuRadioItem value="frightened">
-            Frightened
-          </ContextMenuRadioItem>
-          <ContextMenuRadioItem value="prone">Prone</ContextMenuRadioItem>
-        </ContextMenuRadioGroup>
+        <ContextMenuLabel>Tags</ContextMenuLabel>
+        <ContextMenuSeparator />
+        {tagOptions.map((tag) => (
+          <ContextMenuCheckboxItem
+            key={tag}
+            checked={tags.includes(tag)}
+            onClick={() => handleTagChange(creatureId, tag)}
+          >
+            {tag}
+          </ContextMenuCheckboxItem>
+        ))}
+        <ContextMenuCheckboxItem checked={tags.includes("Frightened")}>
+          Frightened
+        </ContextMenuCheckboxItem>
+        <ContextMenuCheckboxItem checked={tags.includes("Prone")}>Prone</ContextMenuCheckboxItem>
       </ContextMenuContent>
     </ContextMenu>
   );
