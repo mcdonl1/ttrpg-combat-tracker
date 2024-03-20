@@ -14,6 +14,7 @@ import { EditableField } from "./EditableField";
 import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
+import { UserPrompt } from "./UserPrompt";
 
 const defaultTagOptions = ["Frightened", "Poisoned", "Stunned", "Prone", "Invisible", "Concentrating"];
 
@@ -42,6 +43,13 @@ export function EncounterTable({
   isCmdOrCtrlPressed: boolean;
   isShiftPressed: boolean;
 }) {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDone(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  });
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
     direction: "none",
@@ -54,15 +62,15 @@ export function EncounterTable({
       if (idx === -1 || prevList[idx] === undefined) {
         return prevList;
       }
-  
+
       // Create a new copy of the creature object
       const updatedCreature = { ...prevList[idx] };
       updatedCreature.current_hp = Math.max(updatedCreature.current_hp! - amount, 0);
-  
+
       // Create a new copy of the creatures list
       const updatedList = [...prevList];
       updatedList[idx] = updatedCreature as EncounterCreature;
-  
+
       return updatedList;
     });
   };
@@ -117,7 +125,7 @@ export function EncounterTable({
       const updatedList = [...prevList];
       updatedList[idx] = updatedCreature as EncounterCreature;
 
-      return updatedList; 
+      return updatedList;
     })
   };
 
@@ -239,7 +247,7 @@ export function EncounterTable({
                     draggedOver.idx === index && draggedOver.direction === "up"
                       ? "border-t-4 border-t-slate-500"
                       : draggedOver.idx === index &&
-                          draggedOver.direction === "down"
+                        draggedOver.direction === "down"
                         ? "border-b-4 border-b-slate-500"
                         : "",
                     selectedCreaturesIds.includes(creature.id)
@@ -251,7 +259,7 @@ export function EncounterTable({
                     className="font-medium"
                     onDoubleClick={() => setEditInitiativeId(creature.id)}
                   >
-                    <EditableField 
+                    <EditableField
                       className="w-full"
                       initialValue={creature.initiative.toString()}
                       isEditing={editInitativeId === creature.id}
@@ -296,6 +304,11 @@ export function EncounterTable({
             ))}
         </TableBody>
       </Table>
+      <div className="h-full flex flex-col gap-6 pt-5 items-center">
+        {
+          done && <UserPrompt promptText="Apply healing for Dragon" onSubmit={val => console.log(val)} />
+        }
+      </div>
     </ScrollArea>
   );
 }

@@ -369,7 +369,7 @@ export function HomeView() {
                               (creature) =>
                                 creature.id ===
                                 selectedCreaturesIds[
-                                  selectedCreaturesIds.length - 1
+                                selectedCreaturesIds.length - 1
                                 ],
                             )!,
                           ).map(([key, value]) => (
