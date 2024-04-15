@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "~/@/components/ui/button";
 
 import { getServerAuthSession } from "~/server/auth";
 import { ModeToggle } from "~/@/components/ModeToggle";
@@ -13,9 +14,11 @@ export default async function Home() {
         <h1 className="text-xl font-semibold">Roll Initiative</h1>
         <div className="flex gap-3 align-middle">
           <ModeToggle />
-          <Link href="/api/auth/logout">
-            Logout
-          </Link>
+          <Button variant="outline">
+            <Link href="/api/auth/logout">
+              Logout
+            </Link>
+          </Button>
         </div>
       </header>
       <main className="h-screen flex-1 overflow-hidden">

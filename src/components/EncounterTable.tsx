@@ -13,7 +13,6 @@ import { EditableField } from "./EditableField";
 import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
-import { UserPrompt } from "./UserPrompt";
 
 const defaultTagOptions = ["Frightened", "Poisoned", "Stunned", "Prone", "Invisible", "Concentrating"];
 
@@ -203,7 +202,7 @@ export function EncounterTable({
     console.log("open apply damage for creature", creatureId);
   }
   return (
-    <ScrollArea className="h-full">
+    <ScrollArea>
       <Table>
         <TableHeader>
           <TableRow>
@@ -303,11 +302,6 @@ export function EncounterTable({
             ))}
         </TableBody>
       </Table>
-      <div className="h-full flex flex-col gap-6 pt-5 items-center">
-        {
-          done && <UserPrompt promptText="Apply healing for Dragon" onSubmit={val => console.log(val)} />
-        }
-      </div>
     </ScrollArea>
   );
 }

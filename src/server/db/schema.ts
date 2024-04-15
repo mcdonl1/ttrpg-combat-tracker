@@ -23,23 +23,6 @@ export const mysqlTable = mysqlTableCreator(
   (name) => `roll-initiative_${name}`,
 );
 
-export const posts = mysqlTable(
-  "post",
-  {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
-
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
@@ -177,6 +160,42 @@ export const creatures = mysqlTable("creature", {
 export const creatureRelations = relations(creatures, ({ one }) => ({
   user: one(users, {
     fields: [creatures.userId],
+    references: [users.id],
+  }),
+}));
+
+export const encounters = mysqlTable("encounters", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .default(sql`(uuid())`),
+  name: varchar("name", { length: 255 }).notNull(),
+  group: varchar("encounterGroup", { length: 255 }),
+  desc: mediumtext("notes"),
+  encounter: json("blob"),
+  userId: varchar("userId", { length: 255 }),
+});
+
+export const encounterRelations = relations(encounters, ({ one }) => ({
+  user: one(users, {
+    fields: [encounters.userId],
+    references: [users.id],
+  }),
+}));
+
+export const tags = mysqlTable("tags", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .default(sql`(uuid())`),
+  name: varchar("name", { length: 255 }).notNull(),
+  userId: varchar("userId", { length: 255 }),
+  color: varchar("color", { length: 255 }),
+});
+
+export const tagsRelations = relations(tags, ({ one }) => ({
+  user: one(users, {
+    fields: [tags.userId],
     references: [users.id],
   }),
 }));

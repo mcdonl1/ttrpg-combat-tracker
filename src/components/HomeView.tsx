@@ -32,6 +32,7 @@ import type { EncounterCreature, Creature } from "~/types/encounterTypes";
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import clsx from "clsx";
+import { CommandBar } from "./CommandBar";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -332,7 +333,7 @@ export function HomeView() {
                 <ResizableHandle />
               </>
             )}
-            <ResizablePanel defaultSize={60}>
+            <ResizablePanel defaultSize={60} className="h-full flex flex-col justify-between">
               <EncounterTable
                 creaturesList={creaturesList}
                 setCreaturesList={setCreaturesList}
@@ -345,6 +346,10 @@ export function HomeView() {
                 setSelectedCreaturesIds={setSelectedCreaturesIds}
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}
                 isShiftPressed={isShiftPressed}
+              />
+              <CommandBar
+                promptText="Apply damage to Dragon"
+                callback={userInput => console.log(userInput)}
               />
             </ResizablePanel>
             {showRightPanel && (

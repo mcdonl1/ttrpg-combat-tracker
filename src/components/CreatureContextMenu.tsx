@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ContextMenu,
   ContextMenuContent,
@@ -26,9 +24,9 @@ export function CreatureContextMenu({
 }: {
   children?: React.ReactNode;
   creature: EncounterCreature;
-  handleOpenApplyDamage: (creatureId: string) =>  void;
-  handleModifyStatblock: (creatureId: string) =>  void;
-  handleModifyInitiative: (creatureId: string) =>  void;
+  handleOpenApplyDamage: (creatureId: string) => void;
+  handleModifyStatblock: (creatureId: string) => void;
+  handleModifyInitiative: (creatureId: string) => void;
   handleAddTag: () => void;
   handleTagChange: (creatureId: string, tag: string) => void;
   handleEditName: () => void;
