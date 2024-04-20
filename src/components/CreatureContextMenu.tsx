@@ -10,6 +10,11 @@ import {
 } from "@/components/ui/context-menu";
 import type { EncounterCreature } from "~/types/encounterTypes";
 
+import { type InferSelectModel } from "drizzle-orm";
+import { type tags } from "~/server/db/schema";
+
+type Tag = InferSelectModel<typeof tags>;
+
 export function CreatureContextMenu({
   children,
   creature,
@@ -31,7 +36,7 @@ export function CreatureContextMenu({
   handleTagChange: (creatureId: string, tag: string) => void;
   handleEditName: () => void;
   className?: string;
-  tagOptions: string[];
+  tagOptions: Tag[];
 }) {
   const { id: creatureId, name, tags } = creature;
   return (
@@ -79,17 +84,13 @@ export function CreatureContextMenu({
         <ContextMenuSeparator />
         {tagOptions.map((tag) => (
           <ContextMenuCheckboxItem
-            key={tag}
-            checked={tags.includes(tag)}
-            onClick={() => handleTagChange(creatureId, tag)}
+            key={tag.id}
+            checked={tags.includes(tag.name)}
+            onClick={() => handleTagChange(creatureId, tag.name)}
           >
-            {tag}
+            {tag.name}
           </ContextMenuCheckboxItem>
         ))}
-        <ContextMenuCheckboxItem checked={tags.includes("Frightened")}>
-          Frightened
-        </ContextMenuCheckboxItem>
-        <ContextMenuCheckboxItem checked={tags.includes("Prone")}>Prone</ContextMenuCheckboxItem>
       </ContextMenuContent>
     </ContextMenu>
   );

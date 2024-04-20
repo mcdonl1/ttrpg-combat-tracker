@@ -7,6 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { Badge } from "~/@/components/ui/badge";
+
 import type { EncounterCreature, EncounterList } from "~/types/encounterTypes";
 import { CreatureContextMenu } from "./CreatureContextMenu";
 import { EditableField } from "./EditableField";
@@ -14,7 +17,8 @@ import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
 import clsx from "clsx";
 
-const defaultTagOptions = ["Frightened", "Poisoned", "Stunned", "Prone", "Invisible", "Concentrating"];
+import { api } from "~/trpc/react";
+
 
 export function EncounterTable({
   creaturesList,
@@ -41,18 +45,15 @@ export function EncounterTable({
   isCmdOrCtrlPressed: boolean;
   isShiftPressed: boolean;
 }) {
-  const [done, setDone] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDone(true);
-    }, 3000);
-    return () => clearTimeout(timer);
-  });
+
+  const tagOptions = api.tags.getTags.useQuery().data ?? [];
+
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
     direction: "none",
   });
   const [isDraggingIdx, setIsDraggingIdx] = useState(-1);
+
 
   const handleApplyDamage = (creatureId: string, amount: number) => {
     setCreaturesList((prevList) => {
@@ -217,8 +218,13 @@ export function EncounterTable({
         <TableBody className="box-border border-separate [&_tr:last-child]:border-2">
           {creaturesList
             .sort((a, b) => b.initiative - a.initiative)
-            .map((creature, index) => (
-              <CreatureContextMenu
+            .map((creature, index) => {
+              const isSelected = selectedCreaturesIds.includes(creature.id);
+              const isCurrentTurn = currentTurnIdx === index;
+              const isPrevTurn = currentTurnIdx - 1 === index;
+              const isDraggedOverUp = draggedOver.idx === index && draggedOver.direction === "up";
+              const isDraggedOverDown = draggedOver.idx === index && draggedOver.direction === "down";
+              return <CreatureContextMenu
                 key={creature.id + index.toString()}
                 creature={creature}
                 handleOpenApplyDamage={handleOpenApplyDamage}
@@ -227,7 +233,7 @@ export function EncounterTable({
                 handleAddTag={() => console.log("add tag")}
                 handleTagChange={handleTagChange}
                 handleEditName={() => setEditNameId(creature.id)}
-                tagOptions={defaultTagOptions}
+                tagOptions={tagOptions}
               >
                 <TableRow
                   draggable
@@ -238,17 +244,16 @@ export function EncounterTable({
                   onDragStart={(e) => handleDrag(e, index)}
                   className={clsx([
                     "box-border border-2 border-transparent",
-                    currentTurnIdx === index
+                      isCurrentTurn
                       ? "border-slate-500 bg-slate-900"
                       : "",
-                    currentTurnIdx - 1 === index ? "border-b-slate-500" : "",
-                    draggedOver.idx === index && draggedOver.direction === "up"
+                    isPrevTurn ? "border-b-slate-500" : "",
+                    isDraggedOverUp
                       ? "border-t-4 border-t-slate-500"
-                      : draggedOver.idx === index &&
-                        draggedOver.direction === "down"
+                      : isDraggedOverDown
                         ? "border-b-4 border-b-slate-500"
                         : "",
-                    selectedCreaturesIds.includes(creature.id)
+                      isSelected
                       ? "bg-slate-800 hover:bg-slate-800"
                       : "",
                   ])}
@@ -295,11 +300,26 @@ export function EncounterTable({
                     />
                   </TableCell>
                   <TableCell>{creature.armor_class}</TableCell>
-                  <TableCell className="text-secondary">{creature.tags.join(", ")}</TableCell>
+                  <TableCell className="text-secondary flex justify-start gap-1">
+                    {creature.tags.map(tag =>
+                      <Badge
+                        className={
+                          isSelected
+                            ? "bg-slate-700"
+                            : isCurrentTurn
+                              ? "bg-slate-700"
+                              : "bg-slate-900"
+                        }
+                        variant={"secondary"}
+                      >
+                        {tag}
+                      </Badge>
+                    )}
+                  </TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </CreatureContextMenu>
-            ))}
+            })}
         </TableBody>
       </Table>
     </ScrollArea>
