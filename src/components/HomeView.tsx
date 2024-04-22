@@ -32,7 +32,9 @@ import type { EncounterCreature, Creature } from "~/types/encounterTypes";
 import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import clsx from "clsx";
-import { CommandBar } from "./CommandBar";
+import { CommandBar, PromptProps } from "./CommandBar";
+import { argv0 } from "process";
+import { CreatureDetails } from "./CreatureDetails";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -55,6 +57,9 @@ export function HomeView() {
   const [isCmdOrCtrlPressed, setIsCmdOrCtrlPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
+  const [commandBarPrompts, setCommandBarPrompts] = useState<PromptProps[]>([]);
+
+  const addTagMutation = api.tags.addTag.useMutation();
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey) {
@@ -124,6 +129,21 @@ export function HomeView() {
     },
   );
 
+  const handleAddTag = () => {
+  // Insert tag add prompt into commands list
+    setCommandBarPrompts((prev) => {
+      return [
+        ...prev,
+        {
+          promptText: "Add tag:",
+          callback: (userInput) => {
+            addTagMutation.mutate({tag: userInput, color: null});
+          }
+        }
+      ]
+    });
+  }
+
   useEffect(() => {
     if (!dummyCreatures.isLoading && dummyCreatures.data) {
       setCreaturesList(
@@ -131,6 +151,7 @@ export function HomeView() {
       );
     }
   }, [dummyCreatures.isLoading, dummyCreatures.data]);
+
   const sidebarActions = [
     {
       handler: () => {
@@ -346,11 +367,14 @@ export function HomeView() {
                 setSelectedCreaturesIds={setSelectedCreaturesIds}
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}
                 isShiftPressed={isShiftPressed}
+                handleAddTag={handleAddTag}
               />
-              <CommandBar
-                promptText="Apply damage to Dragon"
-                callback={userInput => console.log(userInput)}
-              />
+              {commandBarPrompts.length > 0 &&
+                <CommandBar
+                  promptText={commandBarPrompts[commandBarPrompts.length - 1]!.promptText}
+                  callback={commandBarPrompts[commandBarPrompts.length - 1]!.callback}
+                />
+              }
             </ResizablePanel>
             {showRightPanel && (
               <>
@@ -368,24 +392,15 @@ export function HomeView() {
                     </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">
-                        {selectedCreaturesIds.length > 0 ? (
-                          Object.entries(
-                            creaturesList.find(
-                              (creature) =>
-                                creature.id ===
-                                selectedCreaturesIds[
-                                selectedCreaturesIds.length - 1
-                                ],
-                            )!,
-                          ).map(([key, value]) => (
-                            <div key={key} className="border-b pb-3">
-                              <p className="text-slate-500">
-                                {key.charAt(0).toUpperCase() + key.slice(1)}
-                              </p>
-                              <p>{JSON.stringify(value, null, 2)}</p>
-                            </div>
-                          ))
-                        ) : (
+                        {selectedCreaturesIds.length > 0
+                          ? <CreatureDetails
+                              creature={creaturesList.find(
+                                (creature) =>
+                                  creature.id ===
+                                  selectedCreaturesIds[selectedCreaturesIds.length - 1],
+                              )!}
+                            />
+                          : (
                           <span className="font-light text-slate-600">
                             Select a creature to view its information here
                           </span>

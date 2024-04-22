@@ -1,7 +1,7 @@
 import { Input } from "~/@/components/ui/input";
 import { useState } from "react";
 
-interface PromptProps {
+export interface PromptProps {
   promptText: string;
   callback: (userInput: string) => void;
 }

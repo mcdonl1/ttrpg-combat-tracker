@@ -20,7 +20,7 @@ export const tagsRouter = createTRPCRouter({
     return tagsList;
   }),
 
-  addTag: protectedProcedure.input(z.object({tag: z.string(), color: z.string()})).mutation(async ({ input, ctx }) => {
+  addTag: protectedProcedure.input(z.object({ tag: z.string(), color: z.string().nullable() })).mutation(async ({ input, ctx }) => {
     const response = await ctx.db.insert(tags).values({
       name: input.tag,
       color: input.color,

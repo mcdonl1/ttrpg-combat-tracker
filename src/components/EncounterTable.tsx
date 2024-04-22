@@ -15,6 +15,7 @@ import { CreatureContextMenu } from "./CreatureContextMenu";
 import { EditableField } from "./EditableField";
 import { HpCell } from "./hpCell";
 import { ScrollArea } from "~/@/components/ui/scroll-area";
+import { arrayMove } from "~/utils/utils";
 import clsx from "clsx";
 
 import { api } from "~/trpc/react";
@@ -32,6 +33,7 @@ export function EncounterTable({
   setSelectedCreaturesIds,
   isCmdOrCtrlPressed,
   isShiftPressed,
+  handleAddTag,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
@@ -44,9 +46,11 @@ export function EncounterTable({
   setSelectedCreaturesIds: React.Dispatch<React.SetStateAction<string[]>>;
   isCmdOrCtrlPressed: boolean;
   isShiftPressed: boolean;
+  handleAddTag: () => void;
 }) {
 
-  const tagOptions = api.tags.getTags.useQuery().data ?? [];
+  const tagQuery = api.tags.getTags.useQuery();
+  const tagOptions = tagQuery.data ?? [];
 
   const [draggedOver, setDraggedOver] = useState({
     idx: -1,
@@ -128,17 +132,6 @@ export function EncounterTable({
     })
   };
 
-  function array_move<T>(arr: T[], old_index: number, new_index: number) {
-    if (new_index >= arr.length) {
-      let k = new_index - arr.length + 1;
-      while (k--) {
-        arr.push(undefined as T);
-      }
-    }
-    arr.splice(new_index, 0, arr.splice(old_index, 1)[0] as T);
-    return arr;
-  }
-
   const handleDrag = (e: React.DragEvent, index: number) => {
     e.dataTransfer.setData("text/json", "dummy");
     setIsDraggingIdx(index);
@@ -153,11 +146,6 @@ export function EncounterTable({
     });
   };
 
-  const handleDragOff = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDraggedOver({ idx: -1, direction: "none" });
-  };
-
   const handleDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     setCreaturesList((prevList) => {
@@ -170,7 +158,7 @@ export function EncounterTable({
       draggedCreature.initiative = prevList[onCreatureIdx]!.initiative;
       let newList = [...prevList];
       setDraggedOver({ idx: -1, direction: "none" });
-      newList = array_move(newList, isDraggingIdx, onCreatureIdx);
+      newList = arrayMove(newList, isDraggingIdx, onCreatureIdx);
       return newList;
     });
   };
@@ -230,7 +218,7 @@ export function EncounterTable({
                 handleOpenApplyDamage={handleOpenApplyDamage}
                 handleModifyStatblock={handleModifyStatblock}
                 handleModifyInitiative={handleModifyInitiative}
-                handleAddTag={() => console.log("add tag")}
+                handleAddTag={handleAddTag}
                 handleTagChange={handleTagChange}
                 handleEditName={() => setEditNameId(creature.id)}
                 tagOptions={tagOptions}
@@ -239,7 +227,6 @@ export function EncounterTable({
                   draggable
                   onClick={() => handleSelect(creature.id)}
                   onDragOver={(e) => handleDragOver(e, index)}
-                  onDragLeave={(e) => handleDragOff(e)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
                   className={clsx([
@@ -303,13 +290,13 @@ export function EncounterTable({
                   <TableCell className="text-secondary flex justify-start gap-1">
                     {creature.tags.map(tag =>
                       <Badge
-                        className={
+                        className={clsx([
                           isSelected
                             ? "bg-slate-700"
                             : isCurrentTurn
                               ? "bg-slate-700"
-                              : "bg-slate-900"
-                        }
+                              : "bg-slate-900",
+                        ])}
                         variant={"secondary"}
                       >
                         {tag}
