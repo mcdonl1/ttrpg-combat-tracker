@@ -1,4 +1,4 @@
-import { EncounterCreature, Skills, SpecialAbility, Speed } from "~/types/encounterTypes";
+import { Action, EncounterCreature, Skills, SpecialAbility, Speed } from "~/types/encounterTypes";
 
 import { Separator } from "~/@/components/ui/separator";
 import { getSkillText, getSavingThrowText } from "~/utils/utils";
@@ -14,6 +14,14 @@ function SpecialAbilities ({ specialAbilities }: { specialAbilities: SpecialAbil
   return <div className="flex flex-col gap-2 text-slate-300">
     {specialAbilities.map(ability => {
       return <p><span className="font-bold italic">{ability.name}.</span> {ability.desc}</p>
+    })}
+  </div>
+}
+
+function Actions ({ actions }: { actions: Action[] }) {
+  return <div className="flex flex-col gap-2 text-slate-300">
+    {actions.map(action => {
+      return <p><span className="font-bold italic">{action.name}.</span> {action.desc}</p>
     })}
   </div>
 }
@@ -40,7 +48,7 @@ export function CreatureDetails({ creature }: { creature: EncounterCreature }) {
 
 
   return <div className="flex flex-col gap-1.5">
-    <h3 className="text-xl">{creature.name}</h3>
+    <h2 className="text-2xl">{creature.name}</h2>
     <div className="flex flex-row text-slate-300">
       {`${creature.size} ${creature.type}${creature.alignment ? `, ${creature.alignment}` : ""}`}
     </div>
@@ -59,5 +67,25 @@ export function CreatureDetails({ creature }: { creature: EncounterCreature }) {
     { creature.challenge_rating && <LabelledValue label="Challenge" value={creature.challenge_rating} /> }
     <Separator />
     { creature.special_abilities && <SpecialAbilities specialAbilities={creature.special_abilities as SpecialAbility[]}/> }
+    { creature.actions && <>
+      <h3 className="text-xl">Actions</h3>
+      <Separator />
+      <Actions actions={creature.actions as Action[]}/>
+    </> }
+    { creature.bonus_actions && <>
+      <h3 className="text-xl">Bonus Actions</h3>
+      <Separator />
+      <Actions actions={creature.bonus_actions as Action[]}/>
+    </> }
+    { creature.reactions && <>
+      <h3 className="text-xl">Reactions</h3>
+      <Separator />
+      <Actions actions={creature.reactions as Action[]}/>
+    </> }
+    { creature.legendary_actions && <>
+      <h3 className="text-xl">Legendary Actions</h3>
+      <Separator />
+      <Actions actions={creature.legendary_actions as Action[]}/>
+    </> }
   </div>
 }
