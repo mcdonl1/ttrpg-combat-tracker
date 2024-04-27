@@ -33,7 +33,6 @@ import { rollDice, modifierFromScore } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import clsx from "clsx";
 import { CommandBar, PromptProps } from "./CommandBar";
-import { argv0 } from "process";
 import { CreatureDetails } from "./CreatureDetails";
 
 export function HomeView() {

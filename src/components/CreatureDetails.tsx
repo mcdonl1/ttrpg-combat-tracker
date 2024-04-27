@@ -66,26 +66,26 @@ export function CreatureDetails({ creature }: { creature: EncounterCreature }) {
     { creature.languages && <LabelledValue label="Languages" value={creature.languages} /> }
     { creature.challenge_rating && <LabelledValue label="Challenge" value={creature.challenge_rating} /> }
     <Separator />
-    { creature.special_abilities && <SpecialAbilities specialAbilities={creature.special_abilities as SpecialAbility[]}/> }
-    { creature.actions && <>
+    { creature.special_abilities ? <SpecialAbilities specialAbilities={creature.special_abilities as SpecialAbility[]}/> : null }
+    { creature.actions ? <>
       <h3 className="text-xl">Actions</h3>
       <Separator />
       <Actions actions={creature.actions as Action[]}/>
-    </> }
-    { creature.bonus_actions && <>
+    </> : null }
+    { creature.bonus_actions ? <>
       <h3 className="text-xl">Bonus Actions</h3>
       <Separator />
       <Actions actions={creature.bonus_actions as Action[]}/>
-    </> }
-    { creature.reactions && <>
+    </> : null }
+    { creature.reactions ? <>
       <h3 className="text-xl">Reactions</h3>
       <Separator />
       <Actions actions={creature.reactions as Action[]}/>
-    </> }
-    { creature.legendary_actions && <>
+    </> : null }
+    { creature.legendary_actions ? <>
       <h3 className="text-xl">Legendary Actions</h3>
       <Separator />
       <Actions actions={creature.legendary_actions as Action[]}/>
-    </> }
+    </> : null }
   </div>
 }
