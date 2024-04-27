@@ -12,16 +12,16 @@ function LabelledValue({ label, value }: { label: string, value: string }) {
 
 function SpecialAbilities ({ specialAbilities }: { specialAbilities: SpecialAbility[] }) {
   return <div className="flex flex-col gap-2 text-slate-300">
-    {specialAbilities.map(ability => {
-      return <p><span className="font-bold italic">{ability.name}.</span> {ability.desc}</p>
+    {specialAbilities.map((ability, index) => {
+      return <p key={ability.name!+index}><span className="font-bold italic">{ability.name}.</span> {ability.desc}</p>
     })}
   </div>
 }
 
 function Actions ({ actions }: { actions: Action[] }) {
   return <div className="flex flex-col gap-2 text-slate-300">
-    {actions.map(action => {
-      return <p><span className="font-bold italic">{action.name}.</span> {action.desc}</p>
+    {actions.map((action, index) => {
+      return <p key={action.name!+index}><span className="font-bold italic">{action.name}.</span> {action.desc}</p>
     })}
   </div>
 }

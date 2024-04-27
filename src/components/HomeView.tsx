@@ -34,6 +34,7 @@ import { api } from "~/trpc/react";
 import clsx from "clsx";
 import { CommandBar, PromptProps } from "./CommandBar";
 import { CreatureDetails } from "./CreatureDetails";
+import { CreatureEdit } from "./CreatureEdit";
 
 export function HomeView() {
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -58,7 +59,10 @@ export function HomeView() {
 
   const [commandBarPrompts, setCommandBarPrompts] = useState<PromptProps[]>([]);
 
+  const [creatureEdit, setCreatureEdit] = useState(true);
+
   const addTagMutation = api.tags.addTag.useMutation();
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey) {
@@ -387,12 +391,21 @@ export function HomeView() {
                       >
                         <PinRightIcon />
                       </SideButton>
-                      <h4 className="px-6 py-2">Details</h4>
+                      <h4 className="px-6 py-2" onClick={() => setCreatureEdit(true)}>Edit</h4>
+                      <h4 className="px-6 py-2" onClick={() => setCreatureEdit(false)}>Details</h4>
                     </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">
                         {selectedCreaturesIds.length > 0
-                          ? <CreatureDetails
+                          ? creatureEdit
+                          ? <CreatureEdit
+                              creature={creaturesList.find(
+                                (creature) =>
+                                  creature.id ===
+                                  selectedCreaturesIds[selectedCreaturesIds.length - 1],
+                              )!}
+                            />
+                          : <CreatureDetails
                               creature={creaturesList.find(
                                 (creature) =>
                                   creature.id ===

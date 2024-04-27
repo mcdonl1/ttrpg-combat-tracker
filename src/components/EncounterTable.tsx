@@ -49,7 +49,12 @@ export function EncounterTable({
   handleAddTag: () => void;
 }) {
 
-  const tagQuery = api.tags.getTags.useQuery();
+  const tagQuery = api.tags.getTags.useQuery(undefined, {
+      cacheTime: 1000 * 60 * 60,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      keepPreviousData: true,
+  });
   const tagOptions = tagQuery.data ?? [];
 
   const [draggedOver, setDraggedOver] = useState({
