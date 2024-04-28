@@ -1,16 +1,17 @@
 "use client"
- 
+
 import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
- 
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
+  CommandList,
   CommandItem,
+  CommandGroup,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -33,21 +34,24 @@ import { Input } from "~/@/components/ui/input"
 type Option = { label: string, value: string };
 type Property = { key: string, value: any };
 
-function RowField ({row, validKeys }: { row: Property, validKeys: Option[] }) {
+function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Property, validKeys: Option[], keyClassName?: string, valueClassName?: string }) {
+  const [open, setOpen] = React.useState(false);
+  const [key, setKey] = React.useState(row.key);
   return <div className="flex gap-2 flex-wrap">
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           className={cn(
             "w-24 justify-between",
-            !row.key && "text-muted-foreground"
+            key && "text-muted-foreground",
+            keyClassName ? keyClassName : ""
           )}
         >
-          {row.key
+          {key
             ? validKeys!.find(
-              (option) => option.value === row.key
+              (option) => option.value === key
             )?.label
             : "Select option"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -56,50 +60,53 @@ function RowField ({row, validKeys }: { row: Property, validKeys: Option[] }) {
       <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandInput
+            placeholder="Search for an option"
             className="h-9"
           />
-          <CommandEmpty>Not a valid option.</CommandEmpty>
-          <CommandGroup>
-            {validKeys!.map((option) => (
-              <CommandItem
-                value={option.label}
-                key={option.value}
-                onSelect={() => {
-                  console.log(option.value);
-                }}
-              >
-                {option.label}
-                <CheckIcon
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    option.value === row.key
-                      ? "opacity-100"
-                      : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>Not a valid option.</CommandEmpty>
+            <CommandGroup>
+              {validKeys!.map((option, index) => (
+                <CommandItem
+                  value={option.value}
+                  key={option.value + "key" + index}
+                  onSelect={() => {
+                    setKey(option.value === key ? "" : option.value)
+                    setOpen(false);
+                  }}
+                >
+                  {option.label}
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      option.value === key
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
     <Input
-      className="w-24"
+      className={cn(valueClassName ? valueClassName : "")}
       value={row.value}
       onChange={e => console.log(e.target.value)}
     />
   </div>
 }
 
-export function PropertiesField ({ object, form, validKeys, name }: { object: any, form: any, validKeys?: Option[], name: string}) {
+export function PropertiesField({ object, form, validKeys, name }: { object: any, form: any, validKeys?: Option[], name: string }) {
   const [rows, setRows] = React.useState<Property[]>(
     Object.entries(object).map(([key, value]) => {
       return { key, value };
     }
-  ));
-  console.log(object);
-  console.log(rows);
-  
+    ));
+  console.log(...validKeys!.filter(option => !Object.keys(object).includes(option.value)))
+
   const onSubmit = (data: any) => {
     console.log(data);
   };
@@ -108,12 +115,20 @@ export function PropertiesField ({ object, form, validKeys, name }: { object: an
       return (
         <RowField
           row={row}
-          validKeys={validKeys!}
+          validKeys={validKeys!.filter(option => !Object.keys(object).includes(option.value) || option.value === row.key)}
           key={row.key}
+          keyClassName="w-24"
+          valueClassName="w-24"
         />
       );
     })}
-
+    <Button
+      onClick={() => {
+        setRows([...rows, { key: "", value: "" }]);
+      }}
+    >
+      Add new {name}
+    </Button>
   </div>
 
 }

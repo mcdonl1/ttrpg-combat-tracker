@@ -142,7 +142,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
         validKeys={[
           { label: "Walk", value: "walk" },
           { label: "Fly", value: "fly" },
-          { label: "Wwim", value: "swim" },
+          { label: "Swim", value: "swim" },
           { label: "Climb", value: "climb" },
           { label: "Burrow", value: "burrow" },
           { label: "Hover", value: "hover" },
