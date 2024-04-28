@@ -136,8 +136,11 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
       <FormLabel>Speed</FormLabel>
       <Separator />
       <PropertiesField
-        object={creature.speed as Speed}
-        form={form}
+        object={form.getValues("speed") as {[key: string]: number}}
+        setObject={(object) => {
+          form.setValue("speed", object);
+          form.trigger("speed");
+        }}
         name="speed"
         validKeys={[
           { label: "Walk", value: "walk" },
@@ -147,6 +150,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           { label: "Burrow", value: "burrow" },
           { label: "Hover", value: "hover" },
         ]}
+        type="number"
       />
       <FormField
         control={form.control}

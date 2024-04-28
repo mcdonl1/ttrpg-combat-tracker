@@ -1,7 +1,5 @@
-"use client"
-
 import * as React from "react"
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+import { CaretSortIcon, CheckIcon, Cross1Icon, PlusIcon} from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -19,25 +17,33 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import { Input } from "~/@/components/ui/input"
 
 type Option = { label: string, value: string };
-type Property = { key: string, value: any };
+type Property = { key: string, value: string | number};
 
-function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Property, validKeys: Option[], keyClassName?: string, valueClassName?: string }) {
+function RowField({
+    row,
+    validKeys,
+    keyClassName,
+    valueClassName,
+    handleChange,
+    handleDelete,
+    type
+  }: {
+    row: Property,
+    validKeys: Option[],
+    keyClassName?: string,
+    valueClassName?: string,
+    handleChange: (key: string, value: string | number) => void
+    handleDelete?: () => void
+    type?: "number" | "text"
+  }) {
   const [open, setOpen] = React.useState(false);
   const [key, setKey] = React.useState(row.key);
-  return <div className="flex gap-2 flex-wrap">
+  const [value, setValue] = React.useState(row.value);
+
+  return <div className="flex gap-2 items-center">
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
@@ -45,7 +51,7 @@ function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Prope
           role="combobox"
           className={cn(
             "w-24 justify-between",
-            key && "text-muted-foreground",
+            "text-muted-foreground",
             keyClassName ? keyClassName : ""
           )}
         >
@@ -53,7 +59,7 @@ function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Prope
             ? validKeys!.find(
               (option) => option.value === key
             )?.label
-            : "Select option"}
+            : "..."}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -72,6 +78,9 @@ function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Prope
                   key={option.value + "key" + index}
                   onSelect={() => {
                     setKey(option.value === key ? "" : option.value)
+                    if (option.value !== key && option.value !== "" && value !== "") {
+                      handleChange(option.value, value);
+                    }
                     setOpen(false);
                   }}
                 >
@@ -93,42 +102,103 @@ function RowField({ row, validKeys, keyClassName, valueClassName }: { row: Prope
     </Popover>
     <Input
       className={cn(valueClassName ? valueClassName : "")}
-      value={row.value}
-      onChange={e => console.log(e.target.value)}
+      value={value}
+      type={type ? type : "text"}
+      onChange={e => {
+        const val = type === "number" ? parseInt(e.target.value) : e.target.value;
+        setValue(val);
+        if (key !== "" && value !== "") {
+          handleChange(key, val);
+        }
+      }}
     />
+    {handleDelete &&
+      <Button
+        onClick={handleDelete}
+        variant="ghost"
+        size="icon"
+        className="flex-shrink-0"
+      >
+        <Cross1Icon />
+      </Button>
+    }
   </div>
 }
 
-export function PropertiesField({ object, form, validKeys, name }: { object: any, form: any, validKeys?: Option[], name: string }) {
+export function PropertiesField({
+    object,
+    setObject,
+    validKeys,
+    name,
+    type,
+    keyClassName,
+    valueClassName,
+  }: {
+    object: {[key: string]: any},
+    setObject: React.Dispatch<React.SetStateAction<{[key: string]: any}>>,
+    validKeys?: Option[],
+    name: string,
+    type?: "number" | "text",
+    keyClassName?: string,
+    valueClassName?: string
+  }) {
   const [rows, setRows] = React.useState<Property[]>(
     Object.entries(object).map(([key, value]) => {
       return { key, value };
-    }
-    ));
-  console.log(...validKeys!.filter(option => !Object.keys(object).includes(option.value)))
+    })
+  );
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-  };
+  React.useEffect(() => {
+    setRows(Object.entries(object).map(([key, value]) => {
+      return { key, value };
+    }));
+  }, [object]);
+  
+  console.log(object)
   return <div className="flex gap-2 flex-col">
-    {rows.map((row) => {
+    {rows.map((row, index) => {
       return (
         <RowField
           row={row}
           validKeys={validKeys!.filter(option => !Object.keys(object).includes(option.value) || option.value === row.key)}
           key={row.key}
-          keyClassName="w-24"
-          valueClassName="w-24"
+          keyClassName={cn(keyClassName || "w-24 min-w-24")}
+          valueClassName={cn(valueClassName || "w-24 min-w-24")}
+          handleChange={(key, value) => {
+            setRows(current => {
+              const newRows = [...current];
+              newRows[index] = { key, value };
+              return newRows;
+            });
+            setObject({
+              ...object,
+              [key]: type === "number" && isNaN(value as number) ? 0 : value
+            });
+          }}
+          handleDelete={() => {
+            setRows(current => {
+              const newRows = [...current];
+              newRows.splice(index, 1);
+              return newRows;
+            });
+            const newObject = {...object};
+            delete newObject[row.key];
+            setObject(newObject);
+          }}
+          type={type ? type : "text"}
         />
       );
     })}
-    <Button
+    {validKeys && rows.length < validKeys.length && <Button
       onClick={() => {
         setRows([...rows, { key: "", value: "" }]);
       }}
+      variant="ghost"
+      size="icon"
+      className="justify-center"
     >
-      Add new {name}
-    </Button>
+      <PlusIcon className="h-4 w-4 shrink-0 opacity-50" />
+    </Button>}
   </div>
 
 }
