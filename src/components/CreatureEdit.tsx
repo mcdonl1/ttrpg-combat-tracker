@@ -1,4 +1,4 @@
-import { Creature } from "~/types/encounterTypes";
+import { Action, Creature } from "~/types/encounterTypes";
 import { savingThrows, skills } from "~/constants/constants";
 
 import { useForm } from "react-hook-form";
@@ -12,6 +12,7 @@ import { Textarea } from "~/@/components/ui/textarea";
 import { InfoIcon } from "lucide-react";
 
 import { PropertiesField } from "./PropertiesField";
+import { ActionsField } from "./ActionField";
 
 export function CreatureEdit({ creature }: { creature: Creature }) {
   const form = useForm({values: creature });
@@ -274,6 +275,15 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
               <Textarea placeholder="10" {...field} />
             </FormControl>
           </FormItem>
+        }}
+      />
+      <FormLabel>Actions</FormLabel>
+      <Separator />
+      <ActionsField
+        actions={form.getValues("actions") as Action[]}
+        setActions={(actions) => {
+          form.setValue("actions", actions);
+          form.trigger("actions");
         }}
       />
       <Separator />

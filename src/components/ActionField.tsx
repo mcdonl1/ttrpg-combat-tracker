@@ -5,6 +5,7 @@ import { Action } from "~/types/encounterTypes"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "~/@/components/ui/input"
+import { Textarea } from "~/@/components/ui/textarea"
 
 function ActionField({
     action,
@@ -18,23 +19,31 @@ function ActionField({
   const [name, setName] = React.useState(action.name);
   const [desc, setDesc] = React.useState(action.desc);
 
-  return <div className="flex gap-2 items-center">
-    <Input
-      value={name}
-      onChange={e => {
-        console.log(e.target.value);
-      }}
+  return <div className="flex flex-col gap-2 ">
+    <div className="flex gap-2">
+      <Input
+        value={name}
+        placeholder="Action Name"
+        onChange={e => {
+          setName(e.target.value);
+        }}
+      />
+      {handleDelete &&
+        <Button
+          onClick={handleDelete}
+          variant="ghost"
+          size="icon"
+          className="flex-shrink-0"
+        >
+          <Cross1Icon />
+        </Button>
+      }
+    </div>
+    <Textarea
+      value={desc}
+      onChange={e => setDesc(e.target.value)}
+      placeholder="Action Description"
     />
-    {handleDelete &&
-      <Button
-        onClick={handleDelete}
-        variant="ghost"
-        size="icon"
-        className="flex-shrink-0"
-      >
-        <Cross1Icon />
-      </Button>
-    }
   </div>
 }
 
