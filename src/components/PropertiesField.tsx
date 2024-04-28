@@ -106,7 +106,7 @@ function RowField({
       type={type ? type : "text"}
       onChange={e => {
         const val = type === "number" ? parseInt(e.target.value) : e.target.value;
-        setValue(val);
+        setValue(type === "number" && !isNaN(val as number) ? val : "");
         if (key !== "" && value !== "") {
           handleChange(key, val);
         }
@@ -129,15 +129,13 @@ export function PropertiesField({
     object,
     setObject,
     validKeys,
-    name,
     type,
     keyClassName,
     valueClassName,
   }: {
     object: {[key: string]: any},
-    setObject: React.Dispatch<React.SetStateAction<{[key: string]: any}>>,
+    setObject: (object: {[key: string]: any}) => void,
     validKeys?: Option[],
-    name: string,
     type?: "number" | "text",
     keyClassName?: string,
     valueClassName?: string
@@ -152,9 +150,8 @@ export function PropertiesField({
     setRows(Object.entries(object).map(([key, value]) => {
       return { key, value };
     }));
-  }, [object]);
+  }, [JSON.stringify(object)]);
   
-  console.log(object)
   return <div className="flex gap-2 flex-col">
     {rows.map((row, index) => {
       return (
@@ -163,7 +160,7 @@ export function PropertiesField({
           validKeys={validKeys!.filter(option => !Object.keys(object).includes(option.value) || option.value === row.key)}
           key={row.key}
           keyClassName={cn(keyClassName || "w-24 min-w-24")}
-          valueClassName={cn(valueClassName || "w-24 min-w-24")}
+          valueClassName={cn(valueClassName || "w-16 min-w-16")}
           handleChange={(key, value) => {
             setRows(current => {
               const newRows = [...current];
@@ -191,7 +188,11 @@ export function PropertiesField({
     })}
     {validKeys && rows.length < validKeys.length && <Button
       onClick={() => {
-        setRows([...rows, { key: "", value: "" }]);
+        const availableKeys = validKeys.filter(option => rows.every(row => row.key !== option.value));
+        setRows([...rows, {
+          key: availableKeys[0]!.value || "",
+          value: ""
+        }]);
       }}
       variant="ghost"
       size="icon"

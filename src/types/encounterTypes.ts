@@ -31,6 +31,8 @@ export type Skills = {
   persuasion?: number;
 };
 
+export type Ability = "strength" | "dexterity" | "constitution" | "intelligence" | "wisdom" | "charisma";
+
 export type Action = {
   name?: string;
   desc?: string;

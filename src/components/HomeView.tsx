@@ -327,7 +327,7 @@ export function HomeView() {
         </SideButton>
       </div>
       <ResizablePanelGroup className="h-full" direction="horizontal">
-        <ResizablePanel defaultSize={95}>
+        <ResizablePanel>
           <ResizablePanelGroup className="h-full" direction="horizontal">
             {showLeftPanel && (
               <>

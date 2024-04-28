@@ -1,5 +1,7 @@
-import { Creature, Speed } from "~/types/encounterTypes";
-import { type UseFormReturn, useForm } from "react-hook-form";
+import { Creature } from "~/types/encounterTypes";
+import { savingThrows, skills } from "~/constants/constants";
+
+import { useForm } from "react-hook-form";
 
 import { Form, FormItem, FormField, FormLabel, FormControl } from "~/@/components/ui/form";
 import { Input } from "~/@/components/ui/input";
@@ -13,7 +15,6 @@ import { PropertiesField } from "./PropertiesField";
 
 export function CreatureEdit({ creature }: { creature: Creature }) {
   const form = useForm({values: creature });
-  
   const onSubmit = (data: Creature) => {
     console.log(data);
   };
@@ -141,7 +142,6 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           form.setValue("speed", object);
           form.trigger("speed");
         }}
-        name="speed"
         validKeys={[
           { label: "Walk", value: "walk" },
           { label: "Fly", value: "fly" },
@@ -224,53 +224,39 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           </FormItem>
         }}
       />
-      <FormField
-        control={form.control}
-        name="armor_class"
-        render={({ field }) => {
-          return <FormItem>
-            <FormLabel>Armor Class</FormLabel>
-            <FormControl>
-              <Input placeholder="10" {...field} />
-            </FormControl>
-          </FormItem>
+      <FormLabel>Skills</FormLabel>
+      <Separator />
+      <PropertiesField
+        object={form.getValues("skills") as {[key: string]: number}}
+        setObject={(object) => {
+          form.setValue("skills", object);
+          form.trigger("skills");
         }}
+        validKeys={skills}
+        type="number"
+        keyClassName="w-48"
       />
-      <FormField
-        control={form.control}
-        name="armor_class"
-        render={({ field }) => {
-          return <FormItem>
-            <FormLabel>Armor Class</FormLabel>
-            <FormControl>
-              <Input placeholder="10" {...field} />
-            </FormControl>
-          </FormItem>
+      <FormLabel>Saving Throws</FormLabel>
+      <Separator />
+      <PropertiesField
+        object={function() {
+          let obj: {[key: string]: number} = {};
+          savingThrows.forEach((st) => {
+            // This condition is tricky. Need some way to hide the throws that aren't needed while still allowing them to be empty.
+            obj[st.value] = form.getValues(st.value as keyof Creature) as number;
+          });
+          return obj;
+        }()}
+        setObject={(object) => {
+          savingThrows.forEach((st) => {
+            console.log(st.value, object[st.value]);
+            form.setValue(st.value as keyof Creature, object[st.value] === "" ? null : object[st.value]);
+            form.trigger(st.value as keyof Creature);
+          });
         }}
-      />
-      <FormField
-        control={form.control}
-        name="armor_class"
-        render={({ field }) => {
-          return <FormItem>
-            <FormLabel>Armor Class</FormLabel>
-            <FormControl>
-              <Input placeholder="10" {...field} />
-            </FormControl>
-          </FormItem>
-        }}
-      />
-      <FormField
-        control={form.control}
-        name="armor_class"
-        render={({ field }) => {
-          return <FormItem>
-            <FormLabel>Armor Class</FormLabel>
-            <FormControl>
-              <Input placeholder="10" {...field} />
-            </FormControl>
-          </FormItem>
-        }}
+        validKeys={savingThrows}
+        type="number"
+        keyClassName="w-48"
       />
       <FormField
         control={form.control}
