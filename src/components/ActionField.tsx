@@ -22,10 +22,11 @@ function ActionField({
   return <div className="flex flex-col gap-2 ">
     <div className="flex gap-2">
       <Input
-        value={name}
+        value={name || ""}
         placeholder="Action Name"
         onChange={e => {
           setName(e.target.value);
+          handleChange(e.target.value, desc || "");
         }}
       />
       {handleDelete &&
@@ -40,8 +41,11 @@ function ActionField({
       }
     </div>
     <Textarea
-      value={desc}
-      onChange={e => setDesc(e.target.value)}
+      value={desc || ""}
+      onChange={e => {
+        setDesc(e.target.value)
+        handleChange(name || "", e.target.value);
+      }}
       placeholder="Action Description"
     />
   </div>
@@ -51,37 +55,36 @@ export function ActionsField({
     actions,
     setActions,
   }: {
-    actions: Action[],
-    setActions: (actions: Action[]) => void,
+    actions: Action[] | null,
+    setActions: (actions: Action[] | null) => void,
   }) {
-  const [rows, setRows] = React.useState(actions);
-
+ 
   return <div className="flex gap-2 flex-col">
-    {rows.map((row, index) => {
+    {actions && actions.map((action, index) => {
       return (
         <ActionField
-          action={row}
-          key={row.desc || "" + index}
+          action={action}
+          key={index}
           handleChange={(name, desc) => {
-            console.log(name, desc);
-            // setActions(rows);
+            const newActions = [...actions];
+            newActions[index] = { name, desc };
+            setActions(newActions);
           }}
           handleDelete={() => {
-            setRows(current => {
-              const newActions = [...current];
-              newActions.splice(index, 1);
-              return newActions;
-            });
+            if (actions === null) return;
+            const newActions = [...actions];
+            newActions.splice(index, 1);
+            setActions(newActions);
           }}
         />
       );
     })}
     <Button
       onClick={() => {
-        setRows([...rows, {
-          name: "",
-          desc: "",
-        }]);
+        setActions(!actions
+          ? [{ name: "", desc: "" }]
+          : [...actions, { name: "", desc: "" }]
+        );
       }}
       variant="ghost"
       size="icon"

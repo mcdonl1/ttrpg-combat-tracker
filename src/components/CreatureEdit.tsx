@@ -237,7 +237,13 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
         type="number"
         keyClassName="w-48"
       />
-      <FormLabel>Saving Throws</FormLabel>
+      <FormLabel
+        className="flex gap-1"
+        title="You only need to fill in saving throws that are different from the ability modifier (e.g. because of proficiency)."
+      >
+        Saving Throws
+        <InfoIcon size="10px"/>
+      </FormLabel>
       <Separator />
       <PropertiesField
         object={function() {
@@ -272,7 +278,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
               <InfoIcon size="10px"/>
             </FormLabel>
             <FormControl>
-              <Textarea placeholder="10" {...field} />
+              <Textarea placeholder="This creature owes my rogue 40 gp..." {...field} />
             </FormControl>
           </FormItem>
         }}
@@ -284,6 +290,24 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
         setActions={(actions) => {
           form.setValue("actions", actions);
           form.trigger("actions");
+        }}
+      />
+      <FormLabel>Bonus Actions</FormLabel>
+      <Separator />
+      <ActionsField
+        actions={form.getValues("bonus_actions") as Action[]}
+        setActions={(bonusActions) => {
+          form.setValue("bonus_actions", bonusActions);
+          form.trigger("bonus_actions");
+        }}
+      />
+      <FormLabel>Reactions</FormLabel>
+      <Separator />
+      <ActionsField
+        actions={form.getValues("reactions") as Action[]}
+        setActions={(reactions) => {
+          form.setValue("reactions", reactions);
+          form.trigger("reactions");
         }}
       />
       <Separator />

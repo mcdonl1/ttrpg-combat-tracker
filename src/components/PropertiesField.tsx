@@ -102,7 +102,7 @@ function RowField({
     </Popover>
     <Input
       className={cn(valueClassName ? valueClassName : "")}
-      value={value}
+      value={value !== null ? value : ""}
       type={type ? type : "text"}
       onChange={e => {
         const val = type === "number" ? parseInt(e.target.value) : e.target.value;
