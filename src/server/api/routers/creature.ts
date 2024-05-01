@@ -7,6 +7,11 @@ import {
 } from "~/server/api/trpc";
 
 import {seedDbCreatures} from "~/scripts/db"
+import { creatures } from "~/server/db/schema";
+
+import { createInsertSchema } from "drizzle-zod";
+
+const creatureInsertSchema = createInsertSchema(creatures);
 
 export const creatureRouter = createTRPCRouter({
   getDummyCreatures: publicProcedure
@@ -46,5 +51,13 @@ export const creatureRouter = createTRPCRouter({
 
   seedData: publicProcedure.mutation(async () => {
     await seedDbCreatures();
-  })
+  }),
+
+  saveCreature: publicProcedure.input(creatureInsertSchema).mutation(async ({input, ctx}) => {
+    const creature = await ctx.db.insert(creatures).values(input)
+      .onDuplicateKeyUpdate({
+        set: input,
+      }).execute();
+    return creature;
+  }),
 });

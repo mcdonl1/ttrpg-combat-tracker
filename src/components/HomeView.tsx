@@ -22,6 +22,8 @@ import {
 } from "@radix-ui/react-icons";
 import { useCallback, useEffect, useState } from "react";
 
+import { v4 as uuidv4} from "uuid";
+
 import { EncounterTable } from "~/components/EncounterTable";
 import { SideActionBar } from "~/components/SideActionBar";
 import { SideButton } from "./SideButton";
@@ -221,11 +223,11 @@ export function HomeView() {
       handler: () => {
         if (selectedCreaturesIds.length > 1) {
           const maxSharedInitiative = creaturesList.find(
-            (creature) => creature.id === selectedCreaturesIds[0],
+            (creature) => creature.localId === selectedCreaturesIds[0],
           )!.initiative;
           setCreaturesList((prev) =>
             prev.map((creature) => {
-              if (selectedCreaturesIds.includes(creature.id)) {
+              if (selectedCreaturesIds.includes(creature.localId)) {
                 return {
                   ...creature,
                   initiative: maxSharedInitiative,
@@ -253,7 +255,7 @@ export function HomeView() {
           setSelectedCreaturesIds([]);
           setCreaturesList((prev) =>
             prev.filter(
-              (creature) => !selectedCreaturesIdsCopy.includes(creature.id),
+              (creature) => !selectedCreaturesIdsCopy.includes(creature.localId),
             ),
           );
         }
@@ -270,7 +272,7 @@ export function HomeView() {
     },
   ];
 
-  const buildEncounterCreature = (creature: Creature) => {
+  const buildEncounterCreature = (creature: Creature): EncounterCreature => {
     return {
       ...creature,
       initiative: 0,
@@ -278,25 +280,37 @@ export function HomeView() {
       tags: [],
       isPlayer: false,
       current_conditions: [],
+      localId: uuidv4(),
     };
   };
 
   const handleClickSearchOption = (creatureId: string) => {
-    setAddedCreatureId(creatureId);
+    const existingCreature = creaturesList.find((creature) => creature.id === creatureId);
+    if (existingCreature) {
+      // No need to fetch again  TODO: Add a check to see if the creature has been edited
+      setCreaturesList((prev) => [
+        ...prev,
+        buildEncounterCreature(existingCreature)
+      ]);
+    } else {
+      setAddedCreatureId(creatureId);
+      addedCreature.refetch();
+    }
   };
 
   useEffect(() => {
     if (
       !addedCreature.isError &&
       !addedCreature.isLoading &&
-      addedCreature.data
+      addedCreature.data &&
+      !addedCreature.isRefetching
     ) {
       setCreaturesList((prev) => [
         ...prev,
         buildEncounterCreature(addedCreature.data as Creature),
       ]);
     }
-  }, [addedCreature.data, addedCreature.isLoading, addedCreature.isError]);
+  }, [addedCreature.data, addedCreature.isRefetching, addedCreature.isLoading, addedCreature.isError]);
 
   useEffect(() => {
     if (selectedCreaturesIds.length > 0) {
@@ -401,14 +415,14 @@ export function HomeView() {
                           ? <CreatureEdit
                               creature={creaturesList.find(
                                 (creature) =>
-                                  creature.id ===
+                                  creature.localId ===
                                   selectedCreaturesIds[selectedCreaturesIds.length - 1],
                               )!}
                             />
                           : <CreatureDetails
                               creature={creaturesList.find(
                                 (creature) =>
-                                  creature.id ===
+                                  creature.localId ===
                                   selectedCreaturesIds[selectedCreaturesIds.length - 1],
                               )!}
                             />

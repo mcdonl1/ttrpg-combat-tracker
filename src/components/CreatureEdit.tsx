@@ -1,3 +1,5 @@
+import { api } from "~/trpc/react";
+
 import { Action, Creature } from "~/types/encounterTypes";
 import { savingThrows, skills } from "~/constants/constants";
 
@@ -16,8 +18,10 @@ import { ActionsField } from "./ActionField";
 
 export function CreatureEdit({ creature }: { creature: Creature }) {
   const form = useForm({values: creature });
+  const creatureMutation = api.creatures.saveCreature.useMutation();
   const onSubmit = (data: Creature) => {
     console.log(data);
+    creatureMutation.mutate(data as Creature);
   };
 
   return <Form {...form}>

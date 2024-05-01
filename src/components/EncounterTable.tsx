@@ -92,7 +92,7 @@ export function EncounterTable({
       if ((e.key === "Delete") && editNameId === "" && editInitativeId === "") {
         setCreaturesList((prevList) =>
           prevList.filter(
-            (creature) => !selectedCreaturesIds.includes(creature.id),
+            (creature) => !selectedCreaturesIds.includes(creature.localId),
           ),
         );
         setSelectedCreaturesIds([]);
@@ -173,19 +173,19 @@ export function EncounterTable({
       if (isCmdOrCtrlPressed) {
         return [...prev, id].sort(
           (a, b) =>
-            creaturesList.findIndex((creature) => creature.id === a) -
-            creaturesList.findIndex((creature) => creature.id === b),
+            creaturesList.findIndex((creature) => creature.localId === a) -
+            creaturesList.findIndex((creature) => creature.localId === b),
         );
       } else if (isShiftPressed) {
         const firstSelectedIdx = creaturesList.findIndex(
-          (creature) => creature.id === prev[0],
+          (creature) => creature.localId === prev[0],
         );
         const currentIdx = creaturesList.findIndex(
-          (creature) => creature.id === id,
+          (creature) => creature.localId === id,
         );
         const min = Math.min(firstSelectedIdx, currentIdx);
         const max = Math.max(firstSelectedIdx, currentIdx);
-        return creaturesList.slice(min, max + 1).map((creature) => creature.id);
+        return creaturesList.slice(min, max + 1).map((creature) => creature.localId);
       } else {
         return [id];
       }
@@ -212,25 +212,25 @@ export function EncounterTable({
           {creaturesList
             .sort((a, b) => b.initiative - a.initiative)
             .map((creature, index) => {
-              const isSelected = selectedCreaturesIds.includes(creature.id);
+              const isSelected = selectedCreaturesIds.includes(creature.localId);
               const isCurrentTurn = currentTurnIdx === index;
               const isPrevTurn = currentTurnIdx - 1 === index;
               const isDraggedOverUp = draggedOver.idx === index && draggedOver.direction === "up";
               const isDraggedOverDown = draggedOver.idx === index && draggedOver.direction === "down";
               return <CreatureContextMenu
-                key={creature.id + index.toString()}
+                key={creature.localId + index.toString()}
                 creature={creature}
                 handleOpenApplyDamage={handleOpenApplyDamage}
                 handleModifyStatblock={handleModifyStatblock}
                 handleModifyInitiative={handleModifyInitiative}
                 handleAddTag={handleAddTag}
                 handleTagChange={handleTagChange}
-                handleEditName={() => setEditNameId(creature.id)}
+                handleEditName={() => setEditNameId(creature.localId)}
                 tagOptions={tagOptions}
               >
                 <TableRow
                   draggable
-                  onClick={() => handleSelect(creature.id)}
+                  onClick={() => handleSelect(creature.localId)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragStart={(e) => handleDrag(e, index)}
@@ -252,34 +252,34 @@ export function EncounterTable({
                 >
                   <TableCell
                     className="font-medium"
-                    onDoubleClick={() => setEditInitiativeId(creature.id)}
+                    onDoubleClick={() => setEditInitiativeId(creature.localId)}
                   >
                     <EditableField
                       className="w-full"
                       initialValue={creature.initiative.toString()}
-                      isEditing={editInitativeId === creature.id}
+                      isEditing={editInitativeId === creature.localId}
                       cancelEdit={() => setEditInitiativeId("")}
                       onCommit={(value) => {
                         setCreaturesList((prevList) => {
                           const newCreature = { ...creature, initiative: parseInt(value) };
-                          const idx = prevList.findIndex((c) => c.id === creature.id);
+                          const idx = prevList.findIndex((c) => c.id === creature.localId);
                           prevList[idx] = newCreature;
                           return prevList;
                         });
                       }}
-                      formId={creature.id}
+                      formId={creature.localId}
                     />
                   </TableCell>
                   <TableCell
                     className="font-medium"
-                    onDoubleClick={() => setEditNameId(creature.id)}
+                    onDoubleClick={() => setEditNameId(creature.localId)}
                   >
                     <EditableField
                       className="w-full"
                       initialValue={creature.name}
-                      isEditing={editNameId === creature.id}
+                      isEditing={editNameId === creature.localId}
                       cancelEdit={() => setEditNameId("")}
-                      formId={creature.id}
+                      formId={creature.localId}
                     />
                   </TableCell>
                   <TableCell>
@@ -287,7 +287,7 @@ export function EncounterTable({
                       currentHp={creature.current_hp}
                       maxHp={creature.hit_points ?? 0}
                       applyDamage={(amount) => {
-                        handleApplyDamage(creature.id, amount);
+                        handleApplyDamage(creature.localId, amount);
                       }}
                     />
                   </TableCell>

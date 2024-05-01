@@ -56,6 +56,7 @@ export type EncounterCreature = Creature & {
   current_conditions: string[];
   tags: string[];
   isPlayer: boolean;
+  localId: string;
 };
 
 export type EncounterList = EncounterCreature[];
