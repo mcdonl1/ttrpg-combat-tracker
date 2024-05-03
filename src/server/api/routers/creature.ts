@@ -18,7 +18,7 @@ export const creatureRouter = createTRPCRouter({
     .input(z.object({ count: z.number().min(0) }))
     .query(async ({ input, ctx }) => {
       const creaturesList = ctx.db.query.creatures.findMany({
-        orderBy: (creatures, {sql}) => sql`RAND()`,
+        orderBy: (_, {sql}) => sql`RAND()`,
         limit: input.count
       });
       return creaturesList;

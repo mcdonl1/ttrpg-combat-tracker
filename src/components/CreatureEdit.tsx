@@ -1,6 +1,6 @@
 import { api } from "~/trpc/react";
 
-import { Action, Creature } from "~/types/encounterTypes";
+import { Action, Creature, Speed } from "~/types/encounterTypes";
 import { savingThrows, skills } from "~/constants/constants";
 
 import { useForm } from "react-hook-form";
@@ -24,7 +24,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
     creatureMutation.mutate(data as Creature);
   };
 
-  return <Form {...form}>
+  return <Form {...form} register={form.register}>
     <form
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-2"
@@ -36,7 +36,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Name</FormLabel>
             <FormControl>
-              <Input placeholder="Jed, the Scary Beast"{...field} />
+              <Input placeholder="Jed, the Scary Beast" {...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -53,6 +53,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
                   className="w-28"
                   placeholder="Medium"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
             </FormItem>
@@ -69,6 +70,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
                   className="w-28"
                   placeholder="Humanoid"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
             </FormItem>
@@ -88,7 +90,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
               <InfoIcon size="10px"/>
             </FormLabel>
             <FormControl>
-              <Textarea {...field} />
+              <Textarea {...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -97,14 +99,17 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
         <FormField
           control={form.control}
           name="armor_class"
+          rules={{}}
           render={({ field }) => {
             return <FormItem>
               <FormLabel>Armor Class</FormLabel>
               <FormControl>
                 <Input
                   className="w-24"
-                  placeholder="10"
                   {...field}
+                  {...form.register("armor_class", { valueAsNumber: true })}
+                  type="number"
+                  value={field.value !== null ? field.value : ""}
                 />
               </FormControl>
             </FormItem>
@@ -121,12 +126,14 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
                   className="w-48"
                   placeholder="natural armor"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
             </FormItem>
           }}
         />
       </div>
+      <div className="flex gap-2 flex-wrap">
       <FormField
         control={form.control}
         name="hit_points"
@@ -134,11 +141,35 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Hit Points</FormLabel>
             <FormControl>
-              <Input placeholder="34 (6d10+4)"{...field} />
+              <Input
+                {...form.register("hit_points", { valueAsNumber: true })}
+                {...field}
+                type="number"
+                value={field.value || ""}
+                className="w-24"
+              />
             </FormControl>
           </FormItem>
         }}
       />
+        <FormField
+          control={form.control}
+          name="hit_dice"
+          render={({ field }) => {
+            return <FormItem>
+              <FormLabel>Hit Dice</FormLabel>
+              <FormControl>
+                <Input
+                  className="w-48"
+                  placeholder="1d8 + 2"
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+            </FormItem>
+          }}
+        />
+      </div>
       <FormLabel>Speed</FormLabel>
       <Separator />
       <PropertiesField
@@ -164,7 +195,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Damage Resistances</FormLabel>
             <FormControl>
-              <Input placeholder="fire, lightening, force, etc..."{...field} />
+              <Input placeholder="fire, lightening, force, etc..."{...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -176,7 +207,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Damage Immunities</FormLabel>
             <FormControl>
-              <Input placeholder="fire, lightening, force, etc..."{...field} />
+              <Input placeholder="fire, lightening, force, etc..."{...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -188,7 +219,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Condition Immunities</FormLabel>
             <FormControl>
-              <Input placeholder="prone, poisoned, etc..."{...field} />
+              <Input placeholder="prone, poisoned, etc..."{...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -200,7 +231,6 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Senses</FormLabel>
             <FormControl>
-              <Input placeholder="passive Perception 15, Darkvison 30ft., etc..."{...field} />
             </FormControl>
           </FormItem>
         }}
@@ -212,7 +242,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Languages</FormLabel>
             <FormControl>
-              <Input placeholder="common, draconic, etc..." {...field} />
+              <Input placeholder="common, draconic, etc..." {...field} value={field.value || ""}/>
             </FormControl>
           </FormItem>
         }}
@@ -224,7 +254,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           return <FormItem>
             <FormLabel>Challenge Rating</FormLabel>
             <FormControl>
-              <Input placeholder="1/2" {...field} />
+              <Input placeholder="1/2" {...field} value={field.value || ""} />
             </FormControl>
           </FormItem>
         }}
@@ -282,7 +312,7 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
               <InfoIcon size="10px"/>
             </FormLabel>
             <FormControl>
-              <Textarea placeholder="This creature owes my rogue 40 gp..." {...field} />
+              <Textarea placeholder="This creature owes my rogue 40 gp..." {...field} value={field.value || ""} />
             </FormControl>
           </FormItem>
         }}

@@ -11,6 +11,7 @@ import {
   mediumtext,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { Action, Skills, Speed } from "~/types/encounterTypes";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -113,7 +114,7 @@ export const creatures = mysqlTable("creature", {
   armor_desc: varchar("armor_desc", { length: 100 }),
   hit_points: int("hit_points"),
   hit_dice: varchar("hit_dice", { length: 50 }),
-  speed: json("speed"),
+  speed: json("speed").$type<Speed>(),
   initiative_modifier: int("initiative_modifier"),
   strength: int("strength"),
   dexterity: int("dexterity"),
@@ -128,7 +129,7 @@ export const creatures = mysqlTable("creature", {
   wisdom_save: int("wisdom_save"),
   charisma_save: int("charisma_save"),
   perception: int("perception"),
-  skills: json("skills"),
+  skills: json("skills").$type<Skills>(),
   damage_vulnerabilities: mediumtext("damage_vulnerabilities"),
   damage_resistances: mediumtext("damage_resistances"),
   damage_immunities: mediumtext("damage_immunities"),
@@ -137,15 +138,15 @@ export const creatures = mysqlTable("creature", {
   languages: varchar("languages", { length: 510 }),
   challenge_rating: varchar("challenge_rating", { length: 255 }),
   cr: int("cr"),
-  actions: json("actions"),
-  bonus_actions: json("bonus_actions"),
-  reactions: json("reactions"),
+  actions: json("actions").$type<Action[]>(),
+  bonus_actions: json("bonus_actions").$type<Action[]>(),
+  reactions: json("reactions").$type<Action[]>(),
   legendary_desc: mediumtext("legendary_desc"),
-  legendary_actions: json("legendary_actions"),
-  special_abilities: json("special_abilities"),
-  spell_list: json("spell_list"),
+  legendary_actions: json("legendary_actions").$type<Action[]>(),
+  special_abilities: json("special_abilities").$type<Action[]>(),
+  spell_list: json("spell_list").$type<Action[]>(),
   page_no: int("page_no"),
-  environments: json("environments"),
+  environments: json("environments").$type<Record<string, string>>(),
   img_main: varchar("img_main", { length: 500 }),
   document__slug: varchar("document__slug", { length: 255 }),
   document__title: varchar("document__title", { length: 255 }),

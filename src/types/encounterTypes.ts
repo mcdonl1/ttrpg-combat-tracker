@@ -50,6 +50,7 @@ export type SpecialAbility = {
 };
 
 export type Creature = InferSelectModel<typeof creatures>;
+
 export type EncounterCreature = Creature & {
   initiative: number;
   current_hp: number;
