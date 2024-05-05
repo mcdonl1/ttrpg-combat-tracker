@@ -4,6 +4,7 @@ import { Button } from "~/@/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 import { ModeToggle } from "~/@/components/ModeToggle";
 import { HomeView } from "~/components/HomeView";
+import { Toaster } from "~/@/components/ui/toaster";
 
 export default async function Home() {
   const session = await getServerAuthSession(); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -23,6 +24,7 @@ export default async function Home() {
       </header>
       <main className="h-screen flex-1 overflow-hidden">
         <HomeView />
+        <Toaster/>
       </main>
     </div>
   );

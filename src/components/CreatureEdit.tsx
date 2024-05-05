@@ -1,5 +1,7 @@
 import { api } from "~/trpc/react";
 
+import { v4 as uuidv4 } from "uuid";
+
 import { Action, Creature, Speed } from "~/types/encounterTypes";
 import { savingThrows, skills } from "~/constants/constants";
 
@@ -10,19 +12,45 @@ import { Input } from "~/@/components/ui/input";
 import { Button } from "~/@/components/ui/button";
 import { Separator } from "~/@/components/ui/separator";
 import { Textarea } from "~/@/components/ui/textarea";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 import { InfoIcon } from "lucide-react";
 
 import { PropertiesField } from "./PropertiesField";
 import { ActionsField } from "./ActionField";
+import { useToast } from "~/@/components/ui/use-toast";
 
 export function CreatureEdit({ creature }: { creature: Creature }) {
   const form = useForm({values: creature });
+  const { toast } = useToast();
   const creatureMutation = api.creatures.saveCreature.useMutation();
   const onSubmit = (data: Creature) => {
-    console.log(data);
     creatureMutation.mutate(data as Creature);
+    if (creatureMutation.error) {
+      toast({title: "Something went wrong", description: "Failed to save creature. Please try again later." });
+    } else {
+      toast({title: "Creature saved", description: "Creature saved successfully" });
+    }
   };
+
+  const handleSaveNew = () => {
+    form.setValue("id", uuidv4());
+    form.handleSubmit(onSubmit)();
+  }
+
+  const handleOverwrite = () => {
+    form.handleSubmit(onSubmit)();
+  }
+  
+
 
   return <Form {...form} register={form.register}>
     <form
@@ -77,6 +105,18 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
           }}
         />
       </div>
+      <FormField
+        control={form.control}
+        name="alignment"
+        render={({ field }) => {
+          return <FormItem>
+            <FormLabel>Alignment</FormLabel>
+            <FormControl>
+              <Input {...field} value={field.value || ""}/>
+            </FormControl>
+          </FormItem>
+        }}
+      />
       <FormField
         control={form.control}
         name="desc"
@@ -346,7 +386,25 @@ export function CreatureEdit({ creature }: { creature: Creature }) {
       />
       <Separator />
       <span className="flex justify-around">
-        <Button type="submit">Save</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Save</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Select Save Type</DialogTitle>
+              <DialogDescription>
+                Choose whether to save a new unique creature or overwrite the existing one.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogClose asChild>
+              <Button onClick={handleSaveNew}>Save as New</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button variant="secondary" onClick={handleOverwrite}>Overwrite</Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
         <Button type="reset" variant="destructive">Discard</Button>
       </span>
     </form>
