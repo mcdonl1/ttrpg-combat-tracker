@@ -51,7 +51,7 @@ export function HomeView() {
   const [editInitativeId, setEditInitiativeId] = useState("");
 
   const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(false);
   const [addedCreatureId, setAddedCreatureId] = useState("");
 
   const [creatureSearchValue, setCreatureSearchValue] = useState("");
@@ -61,7 +61,7 @@ export function HomeView() {
 
   const [commandBarPrompts, setCommandBarPrompts] = useState<PromptProps[]>([]);
 
-  const [creatureEdit, setCreatureEdit] = useState(true);
+  const [creatureEdit, setCreatureEdit] = useState(false);
 
   const addTagMutation = api.tags.addTag.useMutation();
 
@@ -150,6 +150,13 @@ export function HomeView() {
   }
 
   useEffect(() => {
+    if (creatureEdit && selectedCreaturesIds.length === 0) {
+      setCreatureEdit(false);
+      setShowRightPanel(false);
+    }
+  }, [selectedCreaturesIds, creatureEdit]);
+
+  useEffect(() => {
     if (!dummyCreatures.isLoading && dummyCreatures.data) {
       setCreaturesList(
         dummyCreatures.data.map((creature) => buildEncounterCreature(creature)),
@@ -207,7 +214,9 @@ export function HomeView() {
     },
     {
       handler: () => {
-        console.log("edit creature");
+        if (selectedCreaturesIds.length > 0) {
+          setCreatureEdit(true);
+        }
       },
       icon: <Pencil2Icon />,
       tooltip: "Edit Creature",
@@ -405,8 +414,7 @@ export function HomeView() {
                       >
                         <PinRightIcon />
                       </SideButton>
-                      <h4 className="px-6 py-2" onClick={() => setCreatureEdit(true)}>Edit</h4>
-                      <h4 className="px-6 py-2" onClick={() => setCreatureEdit(false)}>Details</h4>
+                      <h4 className="px-6 py-2">Details</h4>
                     </div>
                     <div className="flex-1 overflow-auto">
                       <div className="space-y-2 px-6 py-4">
