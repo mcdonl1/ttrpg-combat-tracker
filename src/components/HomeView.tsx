@@ -324,6 +324,8 @@ export function HomeView() {
   useEffect(() => {
     if (selectedCreaturesIds.length > 0) {
       setShowRightPanel(true);
+    } else {
+      setShowRightPanel(false);
     }
   }, [selectedCreaturesIds, setShowRightPanel]);
 
@@ -394,6 +396,7 @@ export function HomeView() {
                 isCmdOrCtrlPressed={isCmdOrCtrlPressed}
                 isShiftPressed={isShiftPressed}
                 handleAddTag={handleAddTag}
+                setCreatureEdit={setCreatureEdit}
               />
               {commandBarPrompts.length > 0 &&
                 <CommandBar

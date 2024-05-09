@@ -38,7 +38,7 @@ export function CreatureContextMenu({
   className?: string;
   tagOptions: Tag[];
 }) {
-  const { id: creatureId, name, tags } = creature;
+  const { localId: creatureId, name, tags } = creature;
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild className={className}>

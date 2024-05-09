@@ -34,6 +34,7 @@ export function EncounterTable({
   isCmdOrCtrlPressed,
   isShiftPressed,
   handleAddTag,
+  setCreatureEdit,
 }: {
   creaturesList: EncounterList;
   setCreaturesList: React.Dispatch<React.SetStateAction<EncounterList>>;
@@ -47,6 +48,7 @@ export function EncounterTable({
   isCmdOrCtrlPressed: boolean;
   isShiftPressed: boolean;
   handleAddTag: () => void;
+  setCreatureEdit: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 
   const tagQuery = api.tags.getTags.useQuery(undefined, {
@@ -108,8 +110,9 @@ export function EncounterTable({
     };
   }, [selectedCreaturesIds, setCreaturesList, setSelectedCreaturesIds, editNameId, editInitativeId])
 
-  const handleModifyStatblock = (creatureId: string) => () => {
-    console.log("modify statblock for creature", creatureId);
+  const handleModifyStatblock = (creatureId: string) => {
+    setSelectedCreaturesIds([creatureId]);
+    setCreatureEdit(true);
   };
 
   const handleModifyInitiative = (creatureId: string) => () => {
